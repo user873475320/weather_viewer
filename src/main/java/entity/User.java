@@ -1,4 +1,4 @@
-package entities;
+package entity;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -21,7 +21,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false)
-    private Integer id;
+    private Long id;
 
     @Size(min = 3, max = 100, message = "Login length must be between 3 and 100 characters")
     @NotBlank(message = "Username can not be empty")

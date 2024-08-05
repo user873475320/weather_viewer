@@ -1,4 +1,4 @@
-package entities;
+package entity;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -19,9 +19,8 @@ import java.time.LocalDateTime;
 public class Session {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false)
-    private Integer id;
+    private String id;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
@@ -33,4 +32,9 @@ public class Session {
     @Column(name = "expires_at", nullable = false)
     private LocalDateTime expiresAt;
 
+
+    @Override
+    public String toString() {
+        return id + " " + user.getId() + " " + expiresAt;
+    }
 }

@@ -1,4 +1,4 @@
-package entities;
+package entity;
 
 import javax.persistence.*;
 import javax.validation.constraints.DecimalMax;
@@ -21,10 +21,10 @@ public class Location {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false)
-    private Integer id;
+    private Long id;
 
-    @Column(length = 200, nullable = false)
     @NotNull
+    @Column(length = 200, nullable = false)
     private String name;
 
     @NotNull
