@@ -1,4 +1,4 @@
-package utils;
+package util;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy;
