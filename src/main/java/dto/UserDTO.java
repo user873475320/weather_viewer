@@ -2,7 +2,7 @@ package dto;
 
 
 import lombok.*;
-import validators.PasswordMatches;
+import validator.PasswordMatches;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
@@ -21,4 +21,10 @@ public class UserDTO {
     private String password;
 
     private String confirmPassword;
+
+    public UserDTO(String login, String password) {
+        this.login = login;
+        this.password = password;
+        this.confirmPassword = password;
+    }
 }
