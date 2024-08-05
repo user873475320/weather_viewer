@@ -1,11 +1,11 @@
 package dao;
 
-import entities.User;
-import org.hibernate.HibernateException;
+import entity.User;
+import exception.DatabaseInteractionException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import utils.HibernateUtils;
+import util.HibernateUtils;
 
 import java.util.Optional;
 
@@ -25,12 +25,10 @@ public class UserDAO {
             session.getTransaction().commit();
 
             return user;
-        } catch (HibernateException e) {
-            e.printStackTrace();
-            return Optional.empty();
         } catch (Exception e) {
-            e.printStackTrace();
-            return Optional.empty();
+
+            // TODO: Log
+            throw new DatabaseInteractionException(e);
         }
     }
 
@@ -41,20 +39,15 @@ public class UserDAO {
             try {
                 session.persist(user);
                 transaction.commit();
-            } catch (HibernateException e) {
-                if (transaction != null)
-                    transaction.rollback();
-
-                e.printStackTrace();
             } catch (Exception e) {
                 if (transaction != null)
                     transaction.rollback();
 
-                e.printStackTrace();
+                // TODO: Log
+                throw new DatabaseInteractionException(e);
             }
         }
     }
-
 
     public void deleteByLogin(String login) {
         try (Session session = sessionFactory.openSession()) {
@@ -63,16 +56,12 @@ public class UserDAO {
             try {
                 findByLogin(login).ifPresent(session::delete);
                 transaction.commit();
-            } catch (HibernateException e) {
-                if (transaction != null)
-                    transaction.rollback();
-
-                e.printStackTrace();
             } catch (Exception e) {
                 if (transaction != null)
                     transaction.rollback();
 
-                e.printStackTrace();
+                // TODO: Log
+                throw new DatabaseInteractionException(e);
             }
         }
     }
