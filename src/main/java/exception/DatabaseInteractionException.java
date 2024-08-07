@@ -1,8 +1,6 @@
 package exception;
 
-import org.hibernate.HibernateException;
-
-public class DatabaseInteractionException extends HibernateException {
+public class DatabaseInteractionException extends RuntimeException {
 
     public DatabaseInteractionException(String message) {
         super(message);
