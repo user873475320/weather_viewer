@@ -1,7 +1,12 @@
 package filter;
 
+import configuration.ThymeleafConfig;
 import entity.Session;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.WebContext;
 import service.SessionService;
+import util.ExceptionHandler;
+import util.HttpSessionUtils;
 
 import javax.servlet.*;
 import javax.servlet.annotation.WebFilter;
@@ -10,84 +15,87 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
 
 @WebFilter("/*")
 public class AuthenticationFilter implements Filter {
 
     private final SessionService sessionService = new SessionService();
-
-    public boolean checkValidSessionAndDeleteIfNot(Cookie[] cookies) {
-        List<Cookie> sessionCookies = Arrays.stream(cookies).filter(cookie -> cookie.getName().equals("SESSIONID")).toList();
-        for (Cookie cookie : sessionCookies) {
-            String sessionId = cookie.getValue();
-            Session session = sessionService.getSessionById(sessionId);
-
-            if (session != null) {
-                if (LocalDateTime.now().isBefore(session.getExpiresAt())) {
-                    return true;
-                } else {
-                    sessionService.deleteSession(sessionId);
-                }
-            }
-        }
-        return false;
-    }
-
-    public boolean checkValidSessionAndDeleteIfNot(Session session) {
-        if (LocalDateTime.now().isBefore(session.getExpiresAt())) {
-            return true;
-        } else {
-            sessionService.deleteSession(session.getId());
-            return false;
-        }
-    }
-
-    public boolean isAuthPath(String path) {
-        return path.equals("/") || path.equals("/auth/login") || path.equals("/auth/registration");
-    }
+    private final ExceptionHandler exceptionHandler = new ExceptionHandler();
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse resp = (HttpServletResponse) response;
 
-        String path = req.getServletPath();
-        boolean isAuthPath = isAuthPath(path);
-        HttpSession httpSession = req.getSession(false);
+        try {
+            TemplateEngine templateEngine = new ThymeleafConfig(req.getServletContext()).getTemplateEngine();
+            WebContext context = new WebContext(req, resp, req.getServletContext(), req.getLocale());
 
-        if (httpSession == null) {
-            if (checkValidSessionAndDeleteIfNot(req.getCookies())) {
-                if (isAuthPath) {
-                    resp.sendRedirect("/home");
+            String path = req.getServletPath();
+            HttpSession httpSession = req.getSession(false);
+            Session session;
+
+            // We can find out about valid session existence from httpSession or client cookies
+            if (httpSession != null) {
+                session = (Session) httpSession.getAttribute("authorizedUserSession");
+
+                if (session != null && sessionService.getValidSessionAndDeleteIfNot(session)) {
+                    actionsAfterSuccessfulAuthorization(path, req, resp, chain);
                 } else {
-                    chain.doFilter(request, response);
+                    actionsAfterFailedAuthorization(path, req, resp, chain, templateEngine, context);
                 }
             } else {
-                if (isAuthPath) {
-                    chain.doFilter(request, response);
+                Cookie[] cookies = req.getCookies();
+
+                if (cookies != null && (session = sessionService.getValidSessionAndDeleteIfNot(cookies)) != null) {
+                    // Create and set up http session in order to in the next requests don't touch DB and use just http session
+                    HttpSessionUtils.createAndSetUpHttpSession(req, session);
+                    actionsAfterSuccessfulAuthorization(path, req, resp, chain);
                 } else {
-                    resp.sendRedirect("/");
+                    actionsAfterFailedAuthorization(path, req, resp, chain, templateEngine, context);
                 }
             }
+        } catch (Exception e) {
+            exceptionHandler.handle(e);
+        }
+    }
+
+    private boolean isOnlyForUnauthorizedUsers(String path) {
+        return path.equals("/index") || path.equals("/auth/login") || path.equals("/auth/registration");
+    }
+
+    private boolean isOnlyForAuthorizedUsers(String path) {
+        return path.equals("/home") || path.equals("/auth/logout");
+    }
+
+    private void actionsAfterSuccessfulAuthorization(String path, HttpServletRequest req, HttpServletResponse resp,
+                                                     FilterChain chain) throws IOException, ServletException {
+        boolean isAuthPath = isOnlyForUnauthorizedUsers(path);
+        boolean isOnlyForAuthorizedUsers = isOnlyForAuthorizedUsers(path);
+
+        if (isAuthPath || path.equals("/")) {
+            //TODO: Add banner like: "You should logout before get access to this page"
+            resp.sendRedirect("/home");
+        } else if (isOnlyForAuthorizedUsers) {
+            chain.doFilter(req, resp);
         } else {
-            Session session = (Session) httpSession.getAttribute("authorizedUserSession");
+            resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+        }
+    }
 
-            if (session != null && checkValidSessionAndDeleteIfNot(session)) {
-                if (isAuthPath) {
-                    resp.sendRedirect("/home");
-                } else {
-                    chain.doFilter(request, response);
-                }
-            } else {
-                if (isAuthPath) {
-                    chain.doFilter(request, response);
-                } else {
-                    resp.sendRedirect("/");
-                }
-            }
+    private void actionsAfterFailedAuthorization(String path, HttpServletRequest req, HttpServletResponse resp,
+                                                 FilterChain chain, TemplateEngine templateEngine, WebContext context) throws ServletException, IOException {
+        boolean isAuthPath = isOnlyForUnauthorizedUsers(path);
+        boolean isOnlyForAuthorizedUsers = isOnlyForAuthorizedUsers(path);
+        if (isAuthPath) {
+            chain.doFilter(req, resp);
+        } else if (path.equals("/")) {
+            templateEngine.process("index_not_authorized.html", context, resp.getWriter());
+        } else if (isOnlyForAuthorizedUsers) {
+            //TODO: Add banner like: "You should authorize before get access to this page"
+            resp.sendRedirect("/index");
+        } else {
+            resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
     }
 }
