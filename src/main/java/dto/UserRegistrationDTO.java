@@ -1,8 +1,11 @@
 package dto;
 
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import validator.PasswordMatches;
+import validator.UniqueLogin;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
@@ -11,9 +14,10 @@ import javax.validation.constraints.Size;
 @NoArgsConstructor
 @AllArgsConstructor
 @PasswordMatches
-public class UserDTO {
+public class UserRegistrationDTO {
     @Size(min = 3, max = 100, message = "Username length must be between 3 and 100 characters")
     @NotBlank(message = "Username can not be empty")
+    @UniqueLogin
     private String login;
 
     @Size(min = 6, max = 100, message = "Password length must be between 6 and 100 characters")
@@ -21,10 +25,4 @@ public class UserDTO {
     private String password;
 
     private String confirmPassword;
-
-    public UserDTO(String login, String password) {
-        this.login = login;
-        this.password = password;
-        this.confirmPassword = password;
-    }
 }
