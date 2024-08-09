@@ -13,7 +13,7 @@ public class AuthenticationService {
     private final UserDAO userDAO = new UserDAO();
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    public Optional<User> getUserByLoginAndPassword(String login, String password) {
+    public Optional<User> findUserByLoginAndPassword(String login, String password) {
         Optional<User> optionalUser = userDAO.findByLogin(login);
         return optionalUser
                 .filter(user -> passwordEncoder.matches(password, user.getPassword()));
