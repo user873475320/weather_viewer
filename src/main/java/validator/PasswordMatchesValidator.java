@@ -1,14 +1,14 @@
 package validator;
 
-import dto.UserDTO;
+import dto.UserRegistrationDTO;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-public class PasswordMatchesValidator implements ConstraintValidator<PasswordMatches, UserDTO> {
+public class PasswordMatchesValidator implements ConstraintValidator<PasswordMatches, UserRegistrationDTO> {
 
     @Override
-    public boolean isValid(UserDTO user, ConstraintValidatorContext context) {
+    public boolean isValid(UserRegistrationDTO user, ConstraintValidatorContext context) {
         boolean isValid = user.getPassword().equals(user.getConfirmPassword());
 
         if (!isValid) {
