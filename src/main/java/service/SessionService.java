@@ -51,29 +51,7 @@ public class SessionService {
         sessionDAO.deleteById(sessionId);
     }
 
-    public Session getValidSessionAndDeleteIfNot(@NotNull Cookie[] cookies) {
-        List<Cookie> sessionCookies = Arrays.stream(cookies).filter(cookie -> cookie.getName().equals("SESSIONID")).toList();
-        for (Cookie cookie : sessionCookies) {
-            String sessionId = cookie.getValue();
-            Session session = getSessionByIdAndLoadUser(sessionId);
-
-            if (session != null) {
-                if (LocalDateTime.now().isBefore(session.getExpiresAt())) {
-                    return session;
-                } else {
-                    deleteSession(sessionId);
-                }
-            }
-        }
-        return null;
-    }
-
-    public boolean getValidSessionAndDeleteIfNot(@NotNull Session session) {
-        if (LocalDateTime.now().isBefore(session.getExpiresAt())) {
-            return true;
-        } else {
-            deleteSession(session.getId());
-            return false;
-        }
+    public void deleteExpiredSessions() {
+        sessionDAO.deleteExpiredSessions();
     }
 }
