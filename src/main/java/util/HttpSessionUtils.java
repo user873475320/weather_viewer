@@ -11,6 +11,10 @@ public class HttpSessionUtils {
     private HttpSessionUtils() {
     }
 
+    public static Session getUserSessionFromHttpSession(HttpSession httpSession) {
+        return (Session) httpSession.getAttribute("authorizedUserSession");
+    }
+
     public static void createAndSetUpHttpSession(HttpServletRequest req, Session session) {
         HttpSession httpSession = req.getSession(true);
         httpSession.setAttribute("authorizedUser", session.getUser());
