@@ -27,7 +27,6 @@ public class UserDAO {
             return user;
         } catch (Exception e) {
 
-            // TODO: Log
             throw new DatabaseInteractionException(e);
         }
     }
@@ -43,7 +42,6 @@ public class UserDAO {
                 if (transaction != null)
                     transaction.rollback();
 
-                // TODO: Log
                 throw new DatabaseInteractionException(e);
             }
         }
@@ -60,7 +58,6 @@ public class UserDAO {
                 if (transaction != null)
                     transaction.rollback();
 
-                // TODO: Log
                 throw new DatabaseInteractionException(e);
             }
         }
