@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.Optional;
 
 @WebFilter("/*")
 public class AuthenticationFilter implements Filter {
@@ -33,25 +34,38 @@ public class AuthenticationFilter implements Filter {
 
             String path = req.getServletPath();
             HttpSession httpSession = req.getSession(false);
-            Session session;
 
-            // We can find out about valid session existence from httpSession or client cookies
-            if (httpSession != null) {
-                session = (Session) httpSession.getAttribute("authorizedUserSession");
+            // We can find out about existence of valid session from httpSession or client cookies
+            if (httpSession != null && HttpSessionUtils.getUserSessionFromHttpSession(httpSession) != null) {
+                Session session = HttpSessionUtils.getUserSessionFromHttpSession(httpSession);
 
-                if (session != null && sessionService.getValidSessionAndDeleteIfNot(session)) {
+                if (sessionService.checkIfSessionIsValid(session)) {
                     actionsAfterSuccessfulAuthorization(path, req, resp, chain);
                 } else {
+                    // Clear data about user session from HttpSession and DB
+                    HttpSessionUtils.clearHttpSessionData(httpSession);
+                    sessionService.deleteSession(session.getId());
+
+                    // TODO: Add banner: "Your session expired. Login again"
                     actionsAfterFailedAuthorization(path, req, resp, chain, templateEngine, context);
                 }
             } else {
                 Cookie[] cookies = req.getCookies();
+                Optional<Session> session = sessionService.findSessionWithLoadedUserByCookies(cookies);
 
-                if (cookies != null && (session = sessionService.getValidSessionAndDeleteIfNot(cookies)) != null) {
-                    // Create and set up http session in order to in the next requests don't touch DB and use just http session
-                    HttpSessionUtils.createAndSetUpHttpSession(req, session);
-                    actionsAfterSuccessfulAuthorization(path, req, resp, chain);
+                if (session.isPresent()) {
+                    if (sessionService.checkIfSessionIsValid(session.get())) {
+                        // Create and set up http session in order to in the next requests don't touch DB and use just http session
+                        HttpSessionUtils.createAndSetUpHttpSession(req, session.get());
+                        actionsAfterSuccessfulAuthorization(path, req, resp, chain);
+                    } else {
+                        // Clear data about user session from DB
+                        sessionService.deleteSession(session.get().getId());
+                        // TODO: Add banner: "Your session expired. Login again"
+                        actionsAfterFailedAuthorization(path, req, resp, chain, templateEngine, context);
+                    }
                 } else {
+                    // TODO: Add banner: "Login before access this page"
                     actionsAfterFailedAuthorization(path, req, resp, chain, templateEngine, context);
                 }
             }
@@ -70,11 +84,11 @@ public class AuthenticationFilter implements Filter {
 
     private void actionsAfterSuccessfulAuthorization(String path, HttpServletRequest req, HttpServletResponse resp,
                                                      FilterChain chain) throws IOException, ServletException {
-        boolean isAuthPath = isOnlyForUnauthorizedUsers(path);
+        boolean isOnlyForUnauthorizedUsers = isOnlyForUnauthorizedUsers(path);
         boolean isOnlyForAuthorizedUsers = isOnlyForAuthorizedUsers(path);
+        boolean isRootPath = path.equals("/");
 
-        if (isAuthPath || path.equals("/")) {
-            //TODO: Add banner like: "You should logout before get access to this page"
+        if (isOnlyForUnauthorizedUsers || isRootPath) {
             resp.sendRedirect("/home");
         } else if (isOnlyForAuthorizedUsers) {
             chain.doFilter(req, resp);
@@ -85,14 +99,15 @@ public class AuthenticationFilter implements Filter {
 
     private void actionsAfterFailedAuthorization(String path, HttpServletRequest req, HttpServletResponse resp,
                                                  FilterChain chain, TemplateEngine templateEngine, WebContext context) throws ServletException, IOException {
-        boolean isAuthPath = isOnlyForUnauthorizedUsers(path);
+        boolean isOnlyForUnauthorizedUsers = isOnlyForUnauthorizedUsers(path);
         boolean isOnlyForAuthorizedUsers = isOnlyForAuthorizedUsers(path);
-        if (isAuthPath) {
+        boolean isRootPath = path.equals("/");
+
+        if (isOnlyForUnauthorizedUsers) {
             chain.doFilter(req, resp);
-        } else if (path.equals("/")) {
+        } else if (isRootPath) {
             templateEngine.process("index_not_authorized.html", context, resp.getWriter());
         } else if (isOnlyForAuthorizedUsers) {
-            //TODO: Add banner like: "You should authorize before get access to this page"
             resp.sendRedirect("/index");
         } else {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
