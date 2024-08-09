@@ -6,9 +6,11 @@ import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.hibernate.query.Query;
 import util.HibernateUtils;
 
 import javax.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 public class SessionDAO {
@@ -62,12 +64,33 @@ public class SessionDAO {
         }
     }
 
-    public void deleteById(String id) {
-        try (Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
+    public void deleteExpiredSessions() {
+        try (Session hibernateSession = sessionFactory.openSession()) {
+            Transaction transaction = hibernateSession.beginTransaction();
 
             try {
-                findById(id).ifPresent(session::delete);
+                Query<?> query = hibernateSession.createQuery("delete from Session s where s.expiresAt < :now");
+                query.setParameter("now", LocalDateTime.now());
+
+                // TODO: Maybe log number of deleted sessions
+                int numberOfDeletedSessions = query.executeUpdate();
+
+                transaction.commit();
+            } catch (Exception e) {
+                if (transaction != null)
+                    transaction.rollback();
+
+                throw new DatabaseInteractionException(e);
+            }
+        }
+    }
+
+    public void deleteById(String id) {
+        try (Session hibernateSession = sessionFactory.openSession()) {
+            Transaction transaction = hibernateSession.beginTransaction();
+
+            try {
+                findById(id).ifPresent(hibernateSession::delete);
                 transaction.commit();
             } catch (Exception e) {
                 if (transaction != null)
