@@ -1,7 +1,7 @@
 package servlet.auth;
 
 import configuration.ThymeleafConfig;
-import dto.UserDTO;
+import dto.UserLoginDTO;
 import entity.Session;
 import entity.User;
 import org.thymeleaf.TemplateEngine;
@@ -58,13 +58,14 @@ public class LoginServlet extends HttpServlet {
 
             String login = req.getParameter("login").strip();
             String password = req.getParameter("password").strip();
-            UserDTO userDTO = new UserDTO(login, password);
+            UserLoginDTO userLoginDTO = new UserLoginDTO(login, password);
 
-            Set<ConstraintViolation<UserDTO>> violations = validator.validate(userDTO);
-            Optional<User> authorizedUser = authenticationService.getUserByLoginAndPassword(login, password);
+            Set<ConstraintViolation<UserLoginDTO>> violations = validator.validate(userLoginDTO);
+            Optional<User> authorizedUser = authenticationService.findUserByLoginAndPassword(login, password);
 
             if (violations.isEmpty() && authorizedUser.isPresent()) {
-                Session session = sessionService.createAndSaveSession(authorizedUser.get().getId());
+                Session session = sessionService.getConfiguredSession(authorizedUser.get().getId());
+                sessionService.saveSession(session);
 
                 HttpSessionUtils.createAndSetUpHttpSession(req, session, authorizedUser.get());
 

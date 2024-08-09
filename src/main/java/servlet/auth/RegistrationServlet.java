@@ -1,7 +1,7 @@
 package servlet.auth;
 
 import configuration.ThymeleafConfig;
-import dto.UserDTO;
+import dto.UserRegistrationDTO;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.WebContext;
 import service.AuthenticationService;
@@ -54,9 +54,9 @@ public class RegistrationServlet extends HttpServlet {
             String password = req.getParameter("password").strip();
             String confirmPassword = req.getParameter("confirm-password").strip();
 
-            UserDTO userDTO = new UserDTO(login, password, confirmPassword);
+            UserRegistrationDTO userRegistrationDTO = new UserRegistrationDTO(login, password, confirmPassword);
 
-            Set<ConstraintViolation<UserDTO>> violations = validator.validate(userDTO);
+            Set<ConstraintViolation<UserRegistrationDTO>> violations = validator.validate(userRegistrationDTO);
 
             if (violations.isEmpty()) {
                 authenticationService.addUser(login, password);
