@@ -1,6 +1,5 @@
 package dao;
 
-
 import exception.DatabaseInteractionException;
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
@@ -17,7 +16,7 @@ public class SessionDAO {
 
     private final SessionFactory sessionFactory = HibernateUtils.getSessionFactory();
 
-    public Optional<entity.Session> findById(String id) {
+    public Optional<entity.Session> findSessionById(String id) {
         try (Session hibernateSession = sessionFactory.getCurrentSession()) {
             hibernateSession.beginTransaction();
 
@@ -31,8 +30,7 @@ public class SessionDAO {
         }
     }
 
-    // TODO: Remove this method(or make user EAGER in session entity) and adding user object into session in general
-    public Optional<entity.Session> findByIdAndLoadUser(String id) {
+    public Optional<entity.Session> findSessionWithLoadedUserById(String id) {
         try (Session hibernateSession = sessionFactory.getCurrentSession()) {
             hibernateSession.beginTransaction();
 
@@ -48,7 +46,7 @@ public class SessionDAO {
     }
 
     @Transactional
-    public void save(entity.Session session) {
+    public void saveSession(entity.Session session) {
         try (Session hibernateSession = sessionFactory.openSession()) {
             Transaction transaction = hibernateSession.beginTransaction();
 
@@ -72,8 +70,7 @@ public class SessionDAO {
                 Query<?> query = hibernateSession.createQuery("delete from Session s where s.expiresAt < :now");
                 query.setParameter("now", LocalDateTime.now());
 
-                // TODO: Maybe log number of deleted sessions
-                int numberOfDeletedSessions = query.executeUpdate();
+                query.executeUpdate();
 
                 transaction.commit();
             } catch (Exception e) {
@@ -90,7 +87,7 @@ public class SessionDAO {
             Transaction transaction = hibernateSession.beginTransaction();
 
             try {
-                findById(id).ifPresent(hibernateSession::delete);
+                findSessionById(id).ifPresent(hibernateSession::delete);
                 transaction.commit();
             } catch (Exception e) {
                 if (transaction != null)
