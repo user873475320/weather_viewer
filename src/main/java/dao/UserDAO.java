@@ -13,7 +13,7 @@ public class UserDAO {
 
     private final SessionFactory sessionFactory = HibernateUtils.getSessionFactory();
 
-    public Optional<User> findByLogin(String login) {
+    public Optional<User> findUserByLogin(String login) {
         try (Session session = sessionFactory.getCurrentSession()) {
             session.beginTransaction();
 
@@ -26,7 +26,6 @@ public class UserDAO {
 
             return user;
         } catch (Exception e) {
-
             throw new DatabaseInteractionException(e);
         }
     }
@@ -37,22 +36,6 @@ public class UserDAO {
 
             try {
                 session.persist(user);
-                transaction.commit();
-            } catch (Exception e) {
-                if (transaction != null)
-                    transaction.rollback();
-
-                throw new DatabaseInteractionException(e);
-            }
-        }
-    }
-
-    public void deleteByLogin(String login) {
-        try (Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
-
-            try {
-                findByLogin(login).ifPresent(session::delete);
                 transaction.commit();
             } catch (Exception e) {
                 if (transaction != null)
