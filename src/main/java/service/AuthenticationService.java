@@ -1,12 +1,12 @@
 package service;
 
 import dao.UserDAO;
+import dto.UserDTO;
 import entity.User;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
-
 
 public class AuthenticationService {
 
@@ -14,15 +14,19 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public Optional<User> findUserByLoginAndPassword(String login, String password) {
-        Optional<User> optionalUser = userDAO.findByLogin(login);
+        Optional<User> optionalUser = userDAO.findUserByLogin(login);
         return optionalUser
                 .filter(user -> passwordEncoder.matches(password, user.getPassword()));
     }
 
-    public void addUser(String login, String password) {
+    public boolean checkCredentials(UserDTO userDTO) {
+        return findUserByLoginAndPassword(userDTO.getLogin(), userDTO.getPassword()).isPresent();
+    }
+
+    public void saveUser(UserDTO userDTO) {
         userDAO.save(User.builder()
-                .login(login)
-                .password(passwordEncoder.encode(password))
+                .login(userDTO.getLogin())
+                .password(passwordEncoder.encode(userDTO.getPassword()))
                 .build());
     }
 }
