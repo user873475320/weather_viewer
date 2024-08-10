@@ -1,4 +1,6 @@
-package validator;
+package validation.annotation;
+
+import validation.validators.PasswordMatchesValidator;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
@@ -7,11 +9,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+@Constraint(validatedBy = PasswordMatchesValidator.class)
+@Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD})
-@Constraint(validatedBy = UniqueLoginValidator.class)
-public @interface UniqueLogin {
-    String message() default "Login is already taken";
+public @interface PasswordMatches {
+    String message() default "Passwords do not match";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

@@ -1,6 +1,7 @@
-package validator;
+package validation.validators;
 
 import dto.UserRegistrationDTO;
+import validation.annotation.PasswordMatches;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
