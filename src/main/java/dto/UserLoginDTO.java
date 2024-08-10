@@ -10,7 +10,7 @@ import javax.validation.constraints.Size;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserLoginDTO {
+public class UserLoginDTO implements UserDTO{
     @Size(min = 3, max = 100, message = "Username length must be between 3 and 100 characters")
     @NotBlank(message = "Username can not be empty")
     private String login;
