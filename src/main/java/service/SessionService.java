@@ -5,7 +5,6 @@ import entity.Session;
 import entity.User;
 
 import javax.servlet.http.Cookie;
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Optional;
@@ -29,22 +28,18 @@ public class SessionService {
                     .stream(cookies)
                     .filter(cookie -> cookie.getName().equals("SESSIONID"))
                     .findAny();
-            return sessionCookie.flatMap(cookie -> findSessionWithLoadedUserById(cookie.getValue()));
+            return sessionCookie.flatMap(cookie -> sessionDAO.findSessionWithLoadedUserById(cookie.getValue()));
         } else {
             return Optional.empty();
         }
     }
 
-    public Optional<Session> findSessionWithLoadedUserById(String sessionId) {
-        return sessionDAO.findByIdAndLoadUser(sessionId);
-    }
-
-    public boolean checkIfSessionIsValid(@NotNull Session session) {
+    public boolean checkIfSessionIsValid(Session session) {
         return LocalDateTime.now().isBefore(session.getExpiresAt());
     }
 
     public void saveSession(Session session) {
-        sessionDAO.save(session);
+        sessionDAO.saveSession(session);
     }
 
     public void deleteSession(String sessionId) {
