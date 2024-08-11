@@ -2,10 +2,11 @@ package servlet.auth;
 
 import configuration.ThymeleafConfig;
 import dto.UserRegistrationDTO;
+import exception.ExceptionHandler;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.WebContext;
 import service.AuthenticationService;
-import util.ExceptionHandler;
+import util.UserUtils;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -49,22 +50,18 @@ public class RegistrationServlet extends HttpServlet {
             TemplateEngine templateEngine = new ThymeleafConfig(getServletContext()).getTemplateEngine();
             WebContext context = new WebContext(req, resp, getServletContext(), req.getLocale());
 
-            // TODO: Create method for extracting userDTO from request
-            String login = req.getParameter("login").strip();
-            String password = req.getParameter("password").strip();
-            String confirmPassword = req.getParameter("confirm-password").strip();
-
-            UserRegistrationDTO userRegistrationDTO = new UserRegistrationDTO(login, password, confirmPassword);
+            UserRegistrationDTO userRegistrationDTO = UserUtils.getUserRegistrationDtoFromRequest(req);
 
             Set<ConstraintViolation<UserRegistrationDTO>> violations = validator.validate(userRegistrationDTO);
 
             if (violations.isEmpty()) {
-                authenticationService.addUser(login, password);
+                authenticationService.saveUser(userRegistrationDTO);
+
                 resp.setStatus(HttpServletResponse.SC_CREATED);
-                // TODO: Redirect to index page with adding a successful banner
+                // TODO: Add banner: "You successfully registered!"
                 resp.sendRedirect("/");
             } else {
-                // TODO: Maybe change status code when we have any errors in fields
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 context.setVariable("violations", violations);
                 templateEngine.process("auth/registration", context, resp.getWriter());
             }
