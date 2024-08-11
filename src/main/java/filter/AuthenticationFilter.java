@@ -2,10 +2,11 @@ package filter;
 
 import configuration.ThymeleafConfig;
 import entity.Session;
+import exception.ExceptionHandler;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.WebContext;
 import service.SessionService;
-import util.ExceptionHandler;
+import util.CookieUtils;
 import util.HttpSessionUtils;
 
 import javax.servlet.*;
@@ -36,8 +37,8 @@ public class AuthenticationFilter implements Filter {
             HttpSession httpSession = req.getSession(false);
 
             // We can find out about existence of valid session from httpSession or client cookies
-            if (httpSession != null && HttpSessionUtils.getUserSessionFromHttpSession(httpSession) != null) {
-                Session session = HttpSessionUtils.getUserSessionFromHttpSession(httpSession);
+            if (httpSession != null && HttpSessionUtils.getSessionFromHttpSession(httpSession) != null) {
+                Session session = HttpSessionUtils.getSessionFromHttpSession(httpSession);
 
                 if (sessionService.checkIfSessionIsValid(session)) {
                     actionsAfterSuccessfulAuthorization(path, req, resp, chain);
@@ -45,6 +46,8 @@ public class AuthenticationFilter implements Filter {
                     // Clear data about user session from HttpSession and DB
                     HttpSessionUtils.clearHttpSessionData(httpSession);
                     sessionService.deleteSession(session.getId());
+                    // Remove cookie with SESSIONID
+                    CookieUtils.deleteSessionCookie(resp);
 
                     // TODO: Add banner: "Your session expired. Login again"
                     actionsAfterFailedAuthorization(path, req, resp, chain, templateEngine, context);
@@ -61,6 +64,9 @@ public class AuthenticationFilter implements Filter {
                     } else {
                         // Clear data about user session from DB
                         sessionService.deleteSession(session.get().getId());
+                        // Remove cookie with SESSIONID
+                        CookieUtils.deleteSessionCookie(resp);
+
                         // TODO: Add banner: "Your session expired. Login again"
                         actionsAfterFailedAuthorization(path, req, resp, chain, templateEngine, context);
                     }
