@@ -11,7 +11,7 @@ public class HttpSessionUtils {
     private HttpSessionUtils() {
     }
 
-    public static Session getUserSessionFromHttpSession(HttpSession httpSession) {
+    public static Session getSessionFromHttpSession(HttpSession httpSession) {
         return (Session) httpSession.getAttribute("authorizedUserSession");
     }
 
