@@ -1,14 +1,14 @@
 package configuration;
 
-import javax.servlet.ServletContext;
-import javax.servlet.annotation.WebListener;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ITemplateResolver;
 import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
+
+import javax.servlet.ServletContext;
+import javax.servlet.annotation.WebListener;
 
 @WebListener
 @Getter
@@ -33,6 +33,8 @@ public class ThymeleafConfig {
         templateResolver.setPrefix("/WEB-INF/templates/");
         templateResolver.setSuffix(".html");
         templateResolver.setTemplateMode(TemplateMode.HTML);
+        templateResolver.setTemplateMode("HTML5");
+        templateResolver.setCharacterEncoding("UTF-8");
         templateResolver.setCacheable(false);
 
         return templateResolver;
