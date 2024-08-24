@@ -41,7 +41,7 @@ public class AuthenticationFilter implements Filter {
                 Session session = HttpSessionUtils.getSessionFromHttpSession(httpSession);
 
                 if (sessionService.checkIfSessionIsValid(session)) {
-                    actionsAfterSuccessfulAuthorization(path, req, resp, chain);
+                    actionsAfterSuccessfulAuthorization(path, req, resp, chain, templateEngine, context);
                 } else {
                     // Clear data about user session from HttpSession and DB
                     httpSession.invalidate();
@@ -60,7 +60,7 @@ public class AuthenticationFilter implements Filter {
                     if (sessionService.checkIfSessionIsValid(session.get())) {
                         // Create and set up http session in order to in the next requests don't touch DB and use just http session
                         HttpSessionUtils.createAndSetUpHttpSession(req, session.get());
-                        actionsAfterSuccessfulAuthorization(path, req, resp, chain);
+                        actionsAfterSuccessfulAuthorization(path, req, resp, chain, templateEngine, context);
                     } else {
                         // Clear data about user session from DB
                         sessionService.delete(session.get().getId());
@@ -85,11 +85,11 @@ public class AuthenticationFilter implements Filter {
     }
 
     private boolean isOnlyForAuthorizedUsers(String path) {
-        return path.equals("/home") || path.equals("/auth/logout");
+        return path.equals("/home") || path.equals("/auth/logout") || path.equals("/location");
     }
 
     private void actionsAfterSuccessfulAuthorization(String path, HttpServletRequest req, HttpServletResponse resp,
-                                                     FilterChain chain) throws IOException, ServletException {
+                                                     FilterChain chain, TemplateEngine templateEngine, WebContext context) throws IOException, ServletException {
         boolean isOnlyForUnauthorizedUsers = isOnlyForUnauthorizedUsers(path);
         boolean isOnlyForAuthorizedUsers = isOnlyForAuthorizedUsers(path);
         boolean isRootPath = path.equals("/");
@@ -99,7 +99,11 @@ public class AuthenticationFilter implements Filter {
         } else if (isOnlyForAuthorizedUsers) {
             chain.doFilter(req, resp);
         } else {
-            resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            resp.setContentType("text/html; charset=UTF-8");
+
+            context.setVariable("errorMessage", "Error 404. Page not found");
+            templateEngine.process("error_page", context, resp.getWriter());
         }
     }
 
@@ -112,11 +116,17 @@ public class AuthenticationFilter implements Filter {
         if (isOnlyForUnauthorizedUsers) {
             chain.doFilter(req, resp);
         } else if (isRootPath) {
+            resp.setContentType("text/html; charset=UTF-8");
+
             templateEngine.process("index_not_authorized.html", context, resp.getWriter());
         } else if (isOnlyForAuthorizedUsers) {
             resp.sendRedirect("/index");
         } else {
-            resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            resp.setContentType("text/html; charset=UTF-8");
+
+            context.setVariable("errorMessage", "Error 404. Page not found");
+            templateEngine.process("error_page", context, resp.getWriter());
         }
     }
 }
