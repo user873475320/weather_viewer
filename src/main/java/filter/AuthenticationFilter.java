@@ -44,8 +44,7 @@ public class AuthenticationFilter implements Filter {
                     actionsAfterSuccessfulAuthorization(path, req, resp, chain);
                 } else {
                     // Clear data about user session from HttpSession and DB
-                    HttpSessionUtils.clearHttpSessionData(httpSession);
-                    sessionService.deleteSession(session.getId());
+                    httpSession.invalidate();
                     sessionService.delete(session.getId());
                     // Remove cookie with SESSIONID
                     CookieUtils.deleteSessionCookie(resp);
