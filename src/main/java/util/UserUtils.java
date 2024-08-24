@@ -7,8 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 
 public class UserUtils {
 
-    private UserUtils() {
-    }
+    private UserUtils() {}
 
     public static UserLoginDTO getUserLoginDtoFromRequest(HttpServletRequest request) {
         String login = request.getParameter("login").strip();

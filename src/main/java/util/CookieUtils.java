@@ -5,8 +5,7 @@ import javax.servlet.http.HttpServletResponse;
 
 public class CookieUtils {
 
-    private CookieUtils() {
-    }
+    private CookieUtils() {}
 
     public static Cookie createConfiguredCookie(String sessionId) {
         Cookie cookie = new Cookie("SESSIONID", sessionId);
