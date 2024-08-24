@@ -46,7 +46,7 @@ public class SessionDAO {
     }
 
     @Transactional
-    public void saveSession(entity.Session session) {
+    public void save(entity.Session session) {
         try (Session hibernateSession = sessionFactory.openSession()) {
             Transaction transaction = hibernateSession.beginTransaction();
 

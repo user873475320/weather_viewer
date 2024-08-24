@@ -38,11 +38,11 @@ public class SessionService {
         return LocalDateTime.now().isBefore(session.getExpiresAt());
     }
 
-    public void saveSession(Session session) {
-        sessionDAO.saveSession(session);
+    public void save(Session session) {
+        sessionDAO.save(session);
     }
 
-    public void deleteSession(String sessionId) {
+    public void delete(String sessionId) {
         sessionDAO.deleteById(sessionId);
     }
 

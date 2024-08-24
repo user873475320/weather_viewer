@@ -46,6 +46,7 @@ public class AuthenticationFilter implements Filter {
                     // Clear data about user session from HttpSession and DB
                     HttpSessionUtils.clearHttpSessionData(httpSession);
                     sessionService.deleteSession(session.getId());
+                    sessionService.delete(session.getId());
                     // Remove cookie with SESSIONID
                     CookieUtils.deleteSessionCookie(resp);
 
@@ -63,7 +64,7 @@ public class AuthenticationFilter implements Filter {
                         actionsAfterSuccessfulAuthorization(path, req, resp, chain);
                     } else {
                         // Clear data about user session from DB
-                        sessionService.deleteSession(session.get().getId());
+                        sessionService.delete(session.get().getId());
                         // Remove cookie with SESSIONID
                         CookieUtils.deleteSessionCookie(resp);
 

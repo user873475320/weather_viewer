@@ -14,8 +14,7 @@ public class SessionHandler {
     private static final SessionService sessionService = new SessionService();
     private static final AuthenticationService authenticationService = new AuthenticationService();
 
-    private SessionHandler() {
-    }
+    private SessionHandler() {}
 
     public static void handleWorkWithSessionAndCookie(HttpServletRequest req, HttpServletResponse resp, UserDTO userDTO) {
         // Get User entity object from DB using UserDTO
@@ -23,12 +22,13 @@ public class SessionHandler {
 
         // Get configured session entity object
         Session session = sessionService.getConfiguredSession(authorizedUser.orElseThrow().getId());
+        session.setUser(authorizedUser.orElseThrow());
 
         // Save the session to DB
-        sessionService.saveSession(session);
+        sessionService.save(session);
 
         // Add our session and user objects to HttpSession
-        HttpSessionUtils.createAndSetUpHttpSession(req, session, authorizedUser.get());
+        HttpSessionUtils.createAndSetUpHttpSession(req, session);
 
         // Create cookie with sessionId from the previous session
         resp.addCookie(CookieUtils.createConfiguredCookie(session.getId()));

@@ -23,7 +23,7 @@ public class LogoutServlet extends HttpServlet {
             HttpSession httpSession = req.getSession();
 
             // Remove session from DB
-            sessionService.deleteSession(((Session) httpSession.getAttribute("authorizedUserSession")).getId());
+            sessionService.delete(((Session) httpSession.getAttribute("authorizedUserSession")).getId());
             // Remove session from HttpSession
             HttpSessionUtils.clearHttpSessionData(httpSession);
             // Remove cookie with SESSIONID
