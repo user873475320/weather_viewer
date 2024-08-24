@@ -1,13 +1,13 @@
 package entity;
 
+import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import javax.persistence.*;
 import javax.validation.constraints.DecimalMax;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotNull;
-
-import lombok.*;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Table(name = "locations")
@@ -24,7 +24,7 @@ public class Location {
     private Long id;
 
     @NotNull
-    @Column(length = 200, nullable = false)
+    @Column(length = 300, nullable = false)
     private String name;
 
     @NotNull
@@ -44,5 +44,4 @@ public class Location {
     @NotNull
     @Column(nullable = false)
     private Double longitude;
-
 }
