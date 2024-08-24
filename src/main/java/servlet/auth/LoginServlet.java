@@ -39,6 +39,9 @@ public class LoginServlet extends HttpServlet {
         try {
             TemplateEngine templateEngine = new ThymeleafConfig(getServletContext()).getTemplateEngine();
             WebContext context = new WebContext(req, resp, getServletContext(), req.getLocale());
+
+            resp.setContentType("text/html; charset=UTF-8");
+
             templateEngine.process("auth/login", context, resp.getWriter());
         } catch (Exception e) {
             exceptionHandler.handle(e);
@@ -55,13 +58,16 @@ public class LoginServlet extends HttpServlet {
 
             Set<ConstraintViolation<UserLoginDTO>> violations = validator.validate(userLoginDTO);
 
+            // TODO: Think how to extract logic of working with validations(how to remove this if)
             if (violations.isEmpty() && authenticationService.checkCredentials(userLoginDTO)) {
                 SessionHandler.handleWorkWithSessionAndCookie(req, resp, userLoginDTO);
 
-                resp.setStatus(HttpServletResponse.SC_OK);
                 resp.sendRedirect("/home");
             } else {
+                // TODO: Maybe create exception like CredentialsException(you send incorrect data) and catch it in my handler
                 resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                resp.setContentType("text/html; charset=UTF-8");
+
                 context.setVariable("violations", "Incorrect username or password");
                 templateEngine.process("auth/login", context, resp.getWriter());
             }

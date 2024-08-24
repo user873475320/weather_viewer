@@ -1,9 +1,9 @@
 package servlet.auth;
 
 import configuration.ThymeleafConfig;
+import exception.ExceptionHandler;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.WebContext;
-import util.ExceptionHandler;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -20,7 +20,9 @@ public class IndexServlet extends HttpServlet {
         try {
             TemplateEngine templateEngine = new ThymeleafConfig(getServletContext()).getTemplateEngine();
             WebContext context = new WebContext(req, resp, getServletContext(), req.getLocale());
-            resp.setContentType("text/html;charset=UTF-8");
+
+            resp.setContentType("text/html; charset=UTF-8");
+
             templateEngine.process("index_not_authorized", context, resp.getWriter());
         } catch (Exception e) {
             exceptionHandler.handle(e);

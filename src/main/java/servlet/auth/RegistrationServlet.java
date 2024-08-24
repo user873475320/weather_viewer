@@ -38,6 +38,9 @@ public class RegistrationServlet extends HttpServlet {
         try {
             TemplateEngine templateEngine = new ThymeleafConfig(getServletContext()).getTemplateEngine();
             WebContext context = new WebContext(req, resp, getServletContext(), req.getLocale());
+
+            resp.setContentType("text/html; charset=UTF-8");
+
             templateEngine.process("auth/registration", context, resp.getWriter());
         } catch (Exception e) {
             exceptionHandler.handle(e);
@@ -57,11 +60,11 @@ public class RegistrationServlet extends HttpServlet {
             if (violations.isEmpty()) {
                 authenticationService.saveUser(userRegistrationDTO);
 
-                resp.setStatus(HttpServletResponse.SC_CREATED);
                 // TODO: Add banner: "You successfully registered!"
                 resp.sendRedirect("/");
             } else {
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                resp.setContentType("text/html; charset=UTF-8");
                 context.setVariable("violations", violations);
                 templateEngine.process("auth/registration", context, resp.getWriter());
             }

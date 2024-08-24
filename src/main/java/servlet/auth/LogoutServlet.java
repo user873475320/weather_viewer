@@ -4,7 +4,6 @@ import entity.Session;
 import exception.ExceptionHandler;
 import service.SessionService;
 import util.CookieUtils;
-import util.HttpSessionUtils;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -25,7 +24,7 @@ public class LogoutServlet extends HttpServlet {
             // Remove session from DB
             sessionService.delete(((Session) httpSession.getAttribute("authorizedUserSession")).getId());
             // Remove session from HttpSession
-            HttpSessionUtils.clearHttpSessionData(httpSession);
+            httpSession.invalidate();
             // Remove cookie with SESSIONID
             CookieUtils.deleteSessionCookie(resp);
 
