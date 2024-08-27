@@ -3,6 +3,7 @@ package service;
 import dao.SessionDAO;
 import entity.Session;
 import entity.User;
+import util.CookieUtils;
 
 import javax.servlet.http.Cookie;
 import java.time.LocalDateTime;
@@ -26,7 +27,7 @@ public class SessionService {
         if (cookies != null) {
             Optional<Cookie> sessionCookie = Arrays
                     .stream(cookies)
-                    .filter(cookie -> cookie.getName().equals("SESSIONID"))
+                    .filter(cookie -> cookie.getName().equals(CookieUtils.COOKIE_NAME))
                     .findAny();
             return sessionCookie.flatMap(cookie -> sessionDAO.findSessionWithLoadedUserById(cookie.getValue()));
         } else {
