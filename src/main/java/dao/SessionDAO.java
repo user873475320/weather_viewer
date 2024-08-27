@@ -1,6 +1,6 @@
 package dao;
 
-import exception.DatabaseInteractionException;
+import exception.server.DatabaseInteractionException;
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
