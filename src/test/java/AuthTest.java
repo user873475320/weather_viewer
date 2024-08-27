@@ -2,7 +2,7 @@ import dao.SessionDAO;
 import dto.UserDTO;
 import dto.UserLoginDTO;
 import entity.User;
-import exception.DatabaseInteractionException;
+import exception.server.DatabaseInteractionException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
