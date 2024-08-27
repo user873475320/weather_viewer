@@ -14,13 +14,14 @@ public class LocationService {
     public List<LocationDTO> findUserLocationDTOs(Long userId) {
         return locationDAO.findLocationsByUserId(userId)
                 .stream()
-                .map(location -> new LocationDTO(location.getName(), location.getLatitude(), location.getLongitude()))
+                .map(location -> new LocationDTO(location.getName(), location.getState(),location.getLatitude(), location.getLongitude()))
                 .toList();
     }
 
     public void saveLocation(LocationDTO locationDTO, Long userId) {
         locationDAO.save(Location.builder()
                     .name(locationDTO.getName())
+                    .state(locationDTO.getState())
                     .latitude(locationDTO.getLatitude())
                     .longitude(locationDTO.getLongitude())
                     .user(User.builder().id(userId).build())
@@ -30,6 +31,7 @@ public class LocationService {
     public void deleteLocation(LocationDTO locationDTO, Long userId) {
         locationDAO.delete(Location.builder()
                     .name(locationDTO.getName())
+                    .state(locationDTO.getState())
                     .latitude(locationDTO.getLatitude())
                     .longitude(locationDTO.getLongitude())
                     .user(User.builder().id(userId).build())
