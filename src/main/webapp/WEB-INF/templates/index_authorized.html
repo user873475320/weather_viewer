@@ -170,6 +170,7 @@
                 <p th:text="${'Pressure: ' + weatherDto.main.pressure + ' hPa'}">Pressure</p>
                 <p th:text="${'Latitude and Longitude: (' + weatherDto.coord.lat + ', ' + weatherDto.coord.lon + ')'}">
                     Latitude and longitude</p>
+                <p th:if="${weatherDto.sys.country}" th:text="${'Country: ' + weatherDto.sys.country}">Country</p>
                 <p th:if="${weatherDto.state}" th:text="${'State: ' + weatherDto.state}">State</p>
             </div>
         </div>
