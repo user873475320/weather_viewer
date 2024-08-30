@@ -8,7 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
-public class AuthenticationService {
+public class UserService {
 
     private final UserDAO userDAO = new UserDAO();
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -23,7 +23,7 @@ public class AuthenticationService {
         return findUserByLoginAndPassword(userDTO.getLogin(), userDTO.getPassword()).isPresent();
     }
 
-    public void saveUser(UserDTO userDTO) {
+    public void save(UserDTO userDTO) {
         userDAO.save(User.builder()
                 .login(userDTO.getLogin())
                 .password(passwordEncoder.encode(userDTO.getPassword()))

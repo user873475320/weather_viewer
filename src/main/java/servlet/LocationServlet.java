@@ -51,7 +51,7 @@ public class LocationServlet extends BaseServlet {
             throw new InvalidUserRequestException("Location already exists or location data is incorrect", HttpServletResponse.SC_BAD_REQUEST, true);
         }
 
-        locationService.saveLocation(locationDTO, session.getUser().getId());
+        locationService.save(locationDTO, session.getUser().getId());
     }
 
     @Override
@@ -66,6 +66,6 @@ public class LocationServlet extends BaseServlet {
             throw new InvalidUserRequestException("Location doesn't exist or location data is incorrect", HttpServletResponse.SC_BAD_REQUEST, true);
         }
 
-        locationService.deleteLocation(locationDTO, session.getUser().getId());
+        locationService.delete(locationDTO, session.getUser().getId());
     }
 }

@@ -3,8 +3,8 @@ package util;
 import dto.UserDTO;
 import entity.Session;
 import entity.User;
-import service.AuthenticationService;
 import service.SessionService;
+import service.UserService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -12,13 +12,13 @@ import java.util.Optional;
 
 public class SessionHandler {
     private static final SessionService sessionService = new SessionService();
-    private static final AuthenticationService authenticationService = new AuthenticationService();
+    private static final UserService userService = new UserService();
 
     private SessionHandler() {}
 
     public static void handleWorkWithSessionAndCookie(HttpServletRequest req, HttpServletResponse resp, UserDTO userDTO) {
         // Get User entity object from DB using UserDTO
-        Optional<User> authorizedUser = authenticationService.findUserByLoginAndPassword(userDTO.getLogin(), userDTO.getPassword());
+        Optional<User> authorizedUser = userService.findUserByLoginAndPassword(userDTO.getLogin(), userDTO.getPassword());
 
         // Get configured session entity object
         Session session = sessionService.getConfiguredSession(authorizedUser.orElseThrow().getId());

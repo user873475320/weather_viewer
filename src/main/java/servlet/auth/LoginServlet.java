@@ -2,7 +2,7 @@ package servlet.auth;
 
 import dto.UserLoginDTO;
 import exception.client.LoginException;
-import service.AuthenticationService;
+import service.UserService;
 import servlet.BaseServlet;
 import util.SessionHandler;
 import util.UserUtils;
@@ -17,7 +17,7 @@ import java.util.Set;
 @WebServlet("/auth/login")
 public class LoginServlet extends BaseServlet {
 
-    private final AuthenticationService authenticationService = new AuthenticationService();
+    private final UserService userService = new UserService();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
@@ -29,7 +29,7 @@ public class LoginServlet extends BaseServlet {
         UserLoginDTO userLoginDTO = UserUtils.getUserLoginDtoFromRequest(req);
         Set<ConstraintViolation<UserLoginDTO>> violations = validator.validate(userLoginDTO);
 
-        if (!violations.isEmpty() || !authenticationService.checkCredentials(userLoginDTO)) {
+        if (!violations.isEmpty() || !userService.checkCredentials(userLoginDTO)) {
             throw new LoginException("Incorrect username or password");
         }
 

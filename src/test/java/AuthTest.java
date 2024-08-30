@@ -12,8 +12,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import service.AuthenticationService;
 import service.SessionService;
+import service.UserService;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -27,7 +27,7 @@ class AuthTest {
     private final SessionFactory sessionFactory = new Configuration().configure().buildSessionFactory();
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    private final AuthenticationService authenticationService = new AuthenticationService();
+    private final UserService userService = new UserService();
     private final SessionService sessionService = new SessionService();
     private final SessionDAO sessionDAO = new SessionDAO();
 
@@ -54,7 +54,7 @@ class AuthTest {
 
     @Test
     void givenValidUser_whenSaveUser_thenUserIsSaved() {
-        authenticationService.saveUser(userDTO);
+        userService.save(userDTO);
 
         try (Session hibernateSession = sessionFactory.openSession()) {
             Transaction tx = hibernateSession.beginTransaction();
@@ -82,7 +82,7 @@ class AuthTest {
 
         UserDTO newUserDTO = new UserLoginDTO(user.getLogin(), UUID.randomUUID().toString());
 
-        assertThatThrownBy(() -> authenticationService.saveUser(newUserDTO))
+        assertThatThrownBy(() -> userService.save(newUserDTO))
                 .isInstanceOf(DatabaseInteractionException.class);
     }
 

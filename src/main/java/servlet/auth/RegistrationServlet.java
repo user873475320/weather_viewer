@@ -2,7 +2,7 @@ package servlet.auth;
 
 import dto.UserRegistrationDTO;
 import exception.client.RegistrationException;
-import service.AuthenticationService;
+import service.UserService;
 import servlet.BaseServlet;
 import util.UserUtils;
 
@@ -16,7 +16,7 @@ import java.util.Set;
 @WebServlet("/auth/registration")
 public class RegistrationServlet extends BaseServlet {
 
-    private final AuthenticationService authenticationService = new AuthenticationService();
+    private final UserService userService = new UserService();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
@@ -32,7 +32,7 @@ public class RegistrationServlet extends BaseServlet {
             throw new RegistrationException(violations);
         }
 
-        authenticationService.saveUser(userRegistrationDTO);
-        resp.sendRedirect("/"); // TODO: Add banner: "You successfully registered!"
+        userService.save(userRegistrationDTO);
+        resp.sendRedirect("/");
     }
 }

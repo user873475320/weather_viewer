@@ -18,7 +18,7 @@ public class LocationService {
                 .toList();
     }
 
-    public void saveLocation(LocationDTO locationDTO, Long userId) {
+    public void save(LocationDTO locationDTO, Long userId) {
         locationDAO.save(Location.builder()
                     .name(locationDTO.getName())
                     .state(locationDTO.getState())
@@ -28,7 +28,7 @@ public class LocationService {
                 .build());
     }
 
-    public void deleteLocation(LocationDTO locationDTO, Long userId) {
+    public void delete(LocationDTO locationDTO, Long userId) {
         locationDAO.delete(Location.builder()
                     .name(locationDTO.getName())
                     .state(locationDTO.getState())

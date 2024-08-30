@@ -12,8 +12,8 @@ public class UniqueLoginValidator implements ConstraintValidator<UniqueLogin, St
     private final UserDAO userDAO = new UserDAO();
 
     @Override
-    public boolean isValid(String value, ConstraintValidatorContext context) {
-        Optional<User> user = userDAO.findUserByLogin(value);
+    public boolean isValid(String login, ConstraintValidatorContext context) {
+        Optional<User> user = userDAO.findUserByLogin(login);
         return user.isEmpty();
     }
 }
