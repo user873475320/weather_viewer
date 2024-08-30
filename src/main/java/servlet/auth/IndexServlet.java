@@ -7,7 +7,7 @@ import servlet.BaseServlet;
 
 import java.io.IOException;
 
-@WebServlet("/index")
+@WebServlet(urlPatterns = {"/index", ""})
 public class IndexServlet extends BaseServlet {
 
     @Override

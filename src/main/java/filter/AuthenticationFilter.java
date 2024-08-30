@@ -22,7 +22,7 @@ import java.util.Optional;
 @WebFilter("/*")
 public class AuthenticationFilter implements Filter {
 
-    private final List<String> unauthorizedUsersPaths = List.of("/index", "/auth/login", "/auth/registration");
+    private final List<String> unauthorizedUsersPaths = List.of("/index", "/auth/login", "/auth/registration", "");
     private final List<String> authorizedUsersPaths = List.of("/home", "/auth/logout", "/location");
 
     private final SessionService sessionService = new SessionService();
@@ -32,9 +32,6 @@ public class AuthenticationFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse resp = (HttpServletResponse) response;
-
-        TemplateEngine templateEngine = new ThymeleafConfig(req.getServletContext()).getTemplateEngine();
-        WebContext context = new WebContext(req, resp, req.getServletContext(), req.getLocale());
 
         try {
             String path = req.getServletPath();
@@ -53,7 +50,7 @@ public class AuthenticationFilter implements Filter {
                     // Remove cookie with SESSIONID
                     CookieUtils.deleteSessionCookie(resp);
 
-                    actionsAfterFailedAuthorization(path, req, resp, chain, templateEngine, context); // TODO: Add banner: "Your session expired. Login again"
+                    actionsAfterFailedAuthorization(path, req, resp, chain); // TODO: Add banner: "Your session expired. Login again"
                 }
             } else {
                 Cookie[] cookies = req.getCookies();
@@ -70,10 +67,10 @@ public class AuthenticationFilter implements Filter {
                         // Remove cookie with SESSIONID
                         CookieUtils.deleteSessionCookie(resp);
 
-                        actionsAfterFailedAuthorization(path, req, resp, chain, templateEngine, context); // TODO: Add banner: "Your session expired. Login again"
+                        actionsAfterFailedAuthorization(path, req, resp, chain); // TODO: Add banner: "Your session expired. Login again"
                     }
                 } else {
-                    actionsAfterFailedAuthorization(path, req, resp, chain, templateEngine, context); // TODO: Add banner: "Login before access this page"
+                    actionsAfterFailedAuthorization(path, req, resp, chain); // TODO: Add banner: "Login before access this page"
                 }
             }
         } catch (Exception e) {
@@ -85,9 +82,8 @@ public class AuthenticationFilter implements Filter {
                                                      FilterChain chain) throws IOException, ServletException {
         boolean isOnlyForUnauthorizedUsers = unauthorizedUsersPaths.contains(path);
         boolean isOnlyForAuthorizedUsers = authorizedUsersPaths.contains(path);
-        boolean isRootPath = path.equals("/");
 
-        if (isOnlyForUnauthorizedUsers || isRootPath) {
+        if (isOnlyForUnauthorizedUsers) {
             resp.sendRedirect("/home");
         } else if (isOnlyForAuthorizedUsers) {
             chain.doFilter(req, resp);
@@ -97,16 +93,13 @@ public class AuthenticationFilter implements Filter {
     }
 
     private void actionsAfterFailedAuthorization(String path, HttpServletRequest req, HttpServletResponse resp,
-                                                 FilterChain chain, TemplateEngine templateEngine, WebContext context) throws ServletException, IOException {
+                                                 FilterChain chain) throws IOException, ServletException {
         boolean isOnlyForUnauthorizedUsers = unauthorizedUsersPaths.contains(path);
         boolean isOnlyForAuthorizedUsers = authorizedUsersPaths.contains(path);
-        boolean isRootPath = path.equals("/");
 
         if (isOnlyForUnauthorizedUsers) {
             chain.doFilter(req, resp);
-        } else if (isRootPath) {
-            templateEngine.process("index_not_authorized.html", context, resp.getWriter());
-        } else if (isOnlyForAuthorizedUsers) {
+        }  else if (isOnlyForAuthorizedUsers) {
             resp.sendRedirect("/index");
         } else {
             throw new InvalidUserRequestException("Page not found", HttpServletResponse.SC_NOT_FOUND);
