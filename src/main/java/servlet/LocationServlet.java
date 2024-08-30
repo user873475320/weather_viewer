@@ -34,9 +34,9 @@ public class LocationServlet extends BaseServlet {
             throw new InvalidUserRequestException("Data is incorrect(name too long)", HttpServletResponse.SC_BAD_REQUEST);
         }
 
-        context.setVariable("login", session.getUser().getLogin());
-        context.setVariable("weatherDtoList", openWeatherApiService.getWeatherData(locationDTO.getName()));
-        templateEngine.process("search_results", context, resp.getWriter());
+        req.setAttribute("login", session.getUser().getLogin());
+        req.setAttribute("weatherDtoList", openWeatherApiService.getWeatherData(locationDTO.getName()));
+        processTemplate("search_results", req, resp);
     }
 
     @Override

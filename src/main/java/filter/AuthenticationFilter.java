@@ -25,8 +25,15 @@ public class AuthenticationFilter implements Filter {
     private final List<String> unauthorizedUsersPaths = List.of("/index", "/auth/login", "/auth/registration", "");
     private final List<String> authorizedUsersPaths = List.of("/home", "/auth/logout", "/location");
 
+    private ExceptionHandler exceptionHandler;
     private final SessionService sessionService = new SessionService();
-    private final ExceptionHandler exceptionHandler = new ExceptionHandler();
+
+    @Override
+    public void init(FilterConfig filterConfig) {
+        ServletContext servletContext = filterConfig.getServletContext();
+        TemplateEngine templateEngine = new ThymeleafConfig().templateEngine(servletContext);
+        exceptionHandler = new ExceptionHandler(servletContext, templateEngine);
+    }
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) {
@@ -74,7 +81,7 @@ public class AuthenticationFilter implements Filter {
                 }
             }
         } catch (Exception e) {
-            exceptionHandler.handle(e, resp, context, templateEngine);
+            exceptionHandler.handle(e, req, resp);
         }
     }
 

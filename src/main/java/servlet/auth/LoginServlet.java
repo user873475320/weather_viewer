@@ -21,7 +21,7 @@ public class LoginServlet extends BaseServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        templateEngine.process("auth/login", context, resp.getWriter());
+        processTemplate("auth/login", req, resp);
     }
 
     @Override

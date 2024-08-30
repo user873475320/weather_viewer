@@ -20,7 +20,7 @@ public class RegistrationServlet extends BaseServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        templateEngine.process("auth/registration", context, resp.getWriter());
+        processTemplate("auth/registration", req, resp);
     }
 
     @Override

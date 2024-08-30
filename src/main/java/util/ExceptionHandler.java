@@ -16,33 +16,49 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 
 public class ExceptionHandler {
-    public void handle(Exception e, HttpServletResponse resp, WebContext context, TemplateEngine templateEngine) {
+    private final ServletContext servletContext;
+    private final TemplateEngine templateEngine;
+
+    public ExceptionHandler(ServletContext servletContext, TemplateEngine templateEngine) {
+        this.servletContext = servletContext;
+        this.templateEngine = templateEngine;
+    }
+
+    protected void processTemplate(String templateName, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        IWebExchange iWebExchange = JakartaServletWebApplication.buildApplication(servletContext).buildExchange(request, response);
+        WebContext webContext = new WebContext(iWebExchange);
+        templateEngine.process(templateName, webContext, response.getWriter());
+    }
+
+    public void handle(Exception e, HttpServletRequest req, HttpServletResponse resp) {
         try {
-            // Return 4xx errors
-            if (e instanceof LoginException) {
-                resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                context.setVariable("violations", e.getMessage());
-                templateEngine.process("auth/login", context, resp.getWriter());
-            }
-            else if (e instanceof RegistrationException exc) {
-                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                context.setVariable("violations", exc.getViolations());
-                templateEngine.process("auth/registration", context, resp.getWriter());
-            }
-            else if (e instanceof InvalidUserRequestException exc) {
-                resp.setStatus(exc.getStatusCode());
-                if (exc.isOnlyShowBanner()) {
-                    resp.setHeader("Error-Message", e.getMessage());
-                } else {
-                    context.setVariable("errorMessage", e.getMessage());
-                    templateEngine.process("error_page", context, resp.getWriter());
+            // Return 4xx error
+            switch (e) {
+                case LoginException exc -> {
+                    resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    req.setAttribute("violations", exc.getMessage());
+                    processTemplate("auth/login", req, resp);
                 }
-            }
-            // Return 5xx error
-            else {
-                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                context.setVariable("errorMessage", "Sorry. Internal server error. Try later");
-                templateEngine.process("error_page", context, resp.getWriter());
+                case RegistrationException exc -> {
+                    resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    req.setAttribute("violations", exc.getViolations());
+                    processTemplate("auth/registration", req, resp);
+                }
+                case InvalidUserRequestException exc -> {
+                    resp.setStatus(exc.getStatusCode());
+                    if (exc.isOnlyShowBanner()) {
+                        resp.setHeader("Error-Message", e.getMessage());
+                    } else {
+                        req.setAttribute("errorMessage", e.getMessage());
+                        processTemplate("error_page", req, resp);
+                    }
+                }
+                // Return 5xx error
+                case null, default -> {
+                    resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                    req.setAttribute("errorMessage", "Sorry. Internal server error. Try later");
+                    processTemplate("error_page", req, resp);
+                }
             }
         } catch (IOException ex) {
             ex.printStackTrace(); // TODO: Log this properly

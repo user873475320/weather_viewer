@@ -12,6 +12,6 @@ public class IndexServlet extends BaseServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        templateEngine.process("index_not_authorized", context, resp.getWriter());
+        processTemplate("index_not_authorized", req, resp);
     }
 }

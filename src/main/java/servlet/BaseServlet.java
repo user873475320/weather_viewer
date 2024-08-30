@@ -17,31 +17,34 @@ import java.io.IOException;
 
 public abstract class BaseServlet extends HttpServlet {
     protected TemplateEngine templateEngine;
-    protected WebContext context;
     protected Validator validator;
-    private final ExceptionHandler exceptionHandler = new ExceptionHandler();
+    private ExceptionHandler exceptionHandler;
 
     @Override
-    public void init(ServletConfig config) {
+    public void init() {
         try (var validatorFactory = Validation.buildDefaultValidatorFactory()){
-            templateEngine = new ThymeleafConfig(config.getServletContext()).getTemplateEngine();
             validator = validatorFactory.getValidator();
-            super.init(config);
+            templateEngine = new ThymeleafConfig().templateEngine(this.getServletContext());
+            exceptionHandler = new ExceptionHandler(this.getServletContext(), templateEngine);
         } catch (Exception e) {
             exceptionHandler.handle(new ServletInitializationException("Failed to initialize a servlet", e));
         }
     }
 
+    protected void processTemplate(String templateName, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        IWebExchange iWebExchange = JakartaServletWebApplication.buildApplication(this.getServletContext()).buildExchange(request, response);
+        WebContext webContext = new WebContext(iWebExchange);
+        templateEngine.process(templateName, webContext, response.getWriter());
+    }
+
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) {
-        context = new WebContext(req, resp, getServletContext());
-
         try {
             req.setCharacterEncoding("UTF-8");
             resp.setCharacterEncoding("UTF-8");
             super.service(req, resp);
         } catch (Exception e) {
-            exceptionHandler.handle(e, resp, context, templateEngine);
+            exceptionHandler.handle(e, req, resp);
         }
     }
 }

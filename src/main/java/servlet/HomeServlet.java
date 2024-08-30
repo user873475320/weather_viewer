@@ -26,8 +26,8 @@ public class HomeServlet extends BaseServlet {
         List<LocationDTO> userLocationDtoList = locationService.findUserLocationDTOs(session.getUser().getId());
         List<WeatherDTO> weatherDtoList = openWeatherApiService.getWeatherData(userLocationDtoList);
 
-        context.setVariable("login", session.getUser().getLogin());
-        context.setVariable("weatherDtoList", weatherDtoList);
-        templateEngine.process("index_authorized", context, resp.getWriter());
+        req.setAttribute("login", session.getUser().getLogin());
+        req.setAttribute("weatherDtoList", weatherDtoList);
+        processTemplate("index_authorized", req, resp);
     }
 }
