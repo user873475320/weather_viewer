@@ -17,7 +17,7 @@ public class SessionService {
 
     public Session getConfiguredSession(Long userId) {
         return new Session(
-                UUID.randomUUID().toString(),
+                UUID.randomUUID(),
                 User.builder().id(userId).build(),
                 LocalDateTime.now().plusWeeks(1)
         );
@@ -29,7 +29,7 @@ public class SessionService {
                     .stream(cookies)
                     .filter(cookie -> cookie.getName().equals(CookieUtils.COOKIE_NAME))
                     .findAny();
-            return sessionCookie.flatMap(cookie -> sessionDAO.findSessionWithLoadedUserById(cookie.getValue()));
+            return sessionCookie.flatMap(cookie -> sessionDAO.findSessionWithLoadedUserById(UUID.fromString(cookie.getValue())));
         } else {
             return Optional.empty();
         }
@@ -43,8 +43,8 @@ public class SessionService {
         sessionDAO.save(session);
     }
 
-    public void delete(String sessionId) {
-        sessionDAO.deleteById(sessionId);
+    public void delete(UUID sessionId) {
+        sessionDAO.delete(sessionId);
     }
 
     public void deleteExpiredSessions() {
