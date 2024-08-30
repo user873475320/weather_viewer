@@ -3,9 +3,9 @@ package service;
 import dao.SessionDAO;
 import entity.Session;
 import entity.User;
+import jakarta.servlet.http.Cookie;
 import util.CookieUtils;
 
-import javax.servlet.http.Cookie;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Optional;

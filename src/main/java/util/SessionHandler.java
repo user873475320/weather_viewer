@@ -3,11 +3,11 @@ package util;
 import dto.UserDTO;
 import entity.Session;
 import entity.User;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import service.SessionService;
 import service.UserService;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.Optional;
 
 public class SessionHandler {

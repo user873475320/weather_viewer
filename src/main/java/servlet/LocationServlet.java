@@ -3,16 +3,16 @@ package servlet;
 import dto.LocationDTO;
 import entity.Session;
 import exception.client.InvalidUserRequestException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.ConstraintViolation;
 import service.LocationService;
 import service.OpenWeatherApiService;
 import util.HttpSessionUtils;
 import util.LocationUtils;
 import validation.validators.LocationExistenceValidator;
 
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.ConstraintViolation;
 import java.io.IOException;
 import java.util.Set;
 

@@ -1,9 +1,9 @@
 package exception.client;
 
 import dto.UserRegistrationDTO;
+import jakarta.validation.ConstraintViolation;
 import lombok.Getter;
 
-import javax.validation.ConstraintViolation;
 import java.util.Set;
 
 @Getter

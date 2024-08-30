@@ -1,14 +1,13 @@
 package configuration;
 
+import jakarta.servlet.ServletContext;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ITemplateResolver;
-import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
-
-import javax.servlet.ServletContext;
-import javax.servlet.annotation.WebListener;
+import org.thymeleaf.templateresolver.WebApplicationTemplateResolver;
+import org.thymeleaf.web.servlet.JakartaServletWebApplication;
 
 @WebListener
 @Getter

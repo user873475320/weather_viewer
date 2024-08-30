@@ -3,9 +3,8 @@ package util;
 import dto.UserLoginDTO;
 import dto.UserRegistrationDTO;
 import exception.client.InvalidUserRequestException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 public class UserUtils {
 
