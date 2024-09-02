@@ -4,7 +4,9 @@ import dto.LocationDTO;
 import exception.client.InvalidUserRequestException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class LocationUtils {
     private LocationUtils() {
     }
@@ -24,7 +26,10 @@ public class LocationUtils {
         }
 
         try {
-            return new LocationDTO(locationName, locationState, Double.parseDouble(locationLatitude), Double.parseDouble(locationLongitude));
+            LocationDTO locationDTO = new LocationDTO(locationName, locationState, Double.parseDouble(locationLatitude), Double.parseDouble(locationLongitude));
+            log.debug("Received LocationDTO: {}", locationDTO);
+
+            return locationDTO;
         } catch (NumberFormatException e) {
             throw new InvalidUserRequestException("Can't parse latitude or longitude from request", HttpServletResponse.SC_BAD_REQUEST, e);
         }
@@ -36,7 +41,9 @@ public class LocationUtils {
             throw new InvalidUserRequestException("'name' parameter was not found", HttpServletResponse.SC_BAD_REQUEST);
         }
 
+        LocationDTO locationDTO = new LocationDTO(locationName, null, 0.0, 0.0);
+        log.debug("Received LocationDTO only with name: {}", locationDTO);
         // Fill latitude and longitude with some CORRECT(successfully pass validation) data
-        return new LocationDTO(locationName, null, 0.0, 0.0);
+        return locationDTO;
     }
 }

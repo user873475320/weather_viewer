@@ -6,6 +6,7 @@ import dto.GeocodingApiResponseDTO;
 import dto.LocationDTO;
 import dto.WeatherDTO;
 import exception.server.OpenWeatherApiInteractionException;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.net.URI;
@@ -20,6 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@Slf4j
 public class OpenWeatherApiService {
     private final String API_KEY = System.getenv("API_KEY");
     private static final String BASE_OPEN_WEATHER_API_URL = "https://api.openweathermap.org/data/2.5/weather";
@@ -30,7 +32,7 @@ public class OpenWeatherApiService {
 
     public List<WeatherDTO> getWeatherData(List<LocationDTO> locations) {
         try {
-            List<WeatherDTO> weatherDtoList = new ArrayList<>();
+            List<WeatherDTO> weatherDTOs = new ArrayList<>();
 
             for (var location : locations) {
                 String requestURL = BASE_OPEN_WEATHER_API_URL + "?lat=" + location.getLatitude() + "&lon=" + location.getLongitude() + "&appid=" + API_KEY + "&lang=en&units=metric";
@@ -44,9 +46,10 @@ public class OpenWeatherApiService {
                 weatherDTO.setName(location.getName()); // Set saved name from DB, because from API response it can be incorrect
                 weatherDTO.setState(location.getState());
 
-                weatherDtoList.add(weatherDTO);
+                weatherDTOs.add(weatherDTO);
             }
-            return weatherDtoList;
+            log.debug("Retrieved weather data by locationDTOs for {} location(s)", weatherDTOs.size());
+            return weatherDTOs;
         } catch (URISyntaxException | IOException | InterruptedException e) {
             throw new OpenWeatherApiInteractionException(e);
         }
@@ -62,6 +65,7 @@ public class OpenWeatherApiService {
 
                 weatherDTOs.add(weatherDTO);
             }
+            log.debug("Retrieved weather data by location name for {} location(s)", weatherDTOs.size());
             return new ArrayList<>(weatherDTOs);
         } catch (URISyntaxException | IOException | InterruptedException e) {
             throw new OpenWeatherApiInteractionException(e);

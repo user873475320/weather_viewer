@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
+import lombok.extern.slf4j.Slf4j;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.WebContext;
 import org.thymeleaf.web.IWebExchange;
@@ -15,6 +16,7 @@ import util.ExceptionHandler;
 
 import java.io.IOException;
 
+@Slf4j
 public abstract class BaseServlet extends HttpServlet {
     protected TemplateEngine templateEngine;
     protected Validator validator;
@@ -32,6 +34,7 @@ public abstract class BaseServlet extends HttpServlet {
     }
 
     protected void processTemplate(String templateName, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        log.info("Processing template: {}", templateName);
         IWebExchange iWebExchange = JakartaServletWebApplication.buildApplication(this.getServletContext()).buildExchange(request, response);
         WebContext webContext = new WebContext(iWebExchange);
         templateEngine.process(templateName, webContext, response.getWriter());
@@ -39,10 +42,13 @@ public abstract class BaseServlet extends HttpServlet {
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) {
+        log.info("Processing {} request for {}", req.getMethod(), req.getServletPath());
         try {
             req.setCharacterEncoding("UTF-8");
             resp.setCharacterEncoding("UTF-8");
+
             super.service(req, resp);
+            log.info("Successfully processed {} request for {}", req.getMethod(), req.getServletPath());
         } catch (Exception e) {
             exceptionHandler.handle(e, req, resp);
         }

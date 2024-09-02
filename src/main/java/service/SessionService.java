@@ -4,6 +4,7 @@ import dao.SessionDAO;
 import entity.Session;
 import entity.User;
 import jakarta.servlet.http.Cookie;
+import lombok.extern.slf4j.Slf4j;
 import util.CookieUtils;
 
 import java.time.LocalDateTime;
@@ -11,6 +12,7 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 public class SessionService {
 
     private final SessionDAO sessionDAO = new SessionDAO();
@@ -48,6 +50,7 @@ public class SessionService {
     }
 
     public void deleteExpiredSessions() {
+        log.info("Expired sessions was deleted");
         sessionDAO.deleteExpiredSessions();
     }
 }

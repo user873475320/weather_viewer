@@ -2,9 +2,11 @@ package util;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.UUID;
 
+@Slf4j
 public class CookieUtils {
 
     public static final String COOKIE_NAME = "SESSIONID";
@@ -19,6 +21,7 @@ public class CookieUtils {
         cookie.setHttpOnly(true);
         cookie.setPath("/");
 
+        log.debug("Got configured cookie with name: {} and value: {}", COOKIE_NAME, sessionId);
         return cookie;
     }
 
@@ -30,5 +33,6 @@ public class CookieUtils {
         cookie.setPath("/");
 
         response.addCookie(cookie);
+        log.debug("Deleted our cookie session");
     }
 }

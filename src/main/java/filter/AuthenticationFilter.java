@@ -57,7 +57,7 @@ public class AuthenticationFilter implements Filter {
                     // Remove cookie with SESSIONID
                     CookieUtils.deleteSessionCookie(resp);
 
-                    actionsAfterFailedAuthorization(path, req, resp, chain); // TODO: Add banner: "Your session expired. Login again"
+                    actionsAfterFailedAuthorization(path, req, resp, chain);
                 }
             } else {
                 Cookie[] cookies = req.getCookies();
@@ -74,10 +74,10 @@ public class AuthenticationFilter implements Filter {
                         // Remove cookie with SESSIONID
                         CookieUtils.deleteSessionCookie(resp);
 
-                        actionsAfterFailedAuthorization(path, req, resp, chain); // TODO: Add banner: "Your session expired. Login again"
+                        actionsAfterFailedAuthorization(path, req, resp, chain);
                     }
                 } else {
-                    actionsAfterFailedAuthorization(path, req, resp, chain); // TODO: Add banner: "Login before access this page"
+                    actionsAfterFailedAuthorization(path, req, resp, chain);
                 }
             }
         } catch (Exception e) {
