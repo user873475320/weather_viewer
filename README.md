@@ -40,5 +40,5 @@ Weather data is requested from the OpenWeatherMap service (https://openweatherma
 3. Create the same database but with name `weatherViewerDB_test` for the test environment
 4. Download the latest version of the Apache Tomcat server(10.x.x) and add it to the project
 5. Add `API_KEY` to the environment variables of your project with the value of your OpenWeatherMap API key
-6. **_!!! Don't forget to change application context in tomcat configuration in order to get correct URL mappings_**
+6. **_!!! Don't forget to change application context to `/` in tomcat configuration in order to get correct URL mappings_**
 7. Run the project on the Tomcat server
