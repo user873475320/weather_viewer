@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Page</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #333;
+            color: white;
+            padding: 10px 20px;
+            overflow: hidden; /* Ensure content that overflows is hidden */
+        }
+        .navbar .username {
+            font-size: 18px;
+            max-width: 200px; /* Adjust the maximum width as needed */
+            white-space: nowrap; /* Prevent the text from wrapping */
+            overflow: hidden; /* Hide overflowed text */
+            text-overflow: ellipsis; /* Show "..." for overflowed text */
+        }
+        .navbar .button-group {
+            display: flex;
+            align-items: center;
+        }
+        .navbar .home {
+            background-color: #4CAF50; /* Green background */
+            border: none;
+            color: white;
+            padding: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+            margin-left: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+        }
+        .navbar .home:hover {
+            background-color: #45a049; /* Darker green on hover */
+        }
+        .navbar .logout {
+            background-color: #f44336;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+            margin-left: 10px;
+        }
+        .navbar .logout:hover {
+            background-color: #c62828;
+        }
+        .container {
+            padding: 20px;
+        }
+
+        .search-form {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .search-form button {
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .search-form button:hover {
+            background-color: #45a049;
+        }
+        .search-form input[type="text"] {
+            padding: 10px;
+            font-size: 16px;
+            width: 300px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .location-card {
+            background-color: #f4f4f4;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            padding: 15px;
+        }
+        .location-card .header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .location-card h3 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: bold;
+            flex-grow: 1; /* Allow header to take remaining space */
+        }
+        .location-card button.delete {
+            background-color: #f44336;
+            border: none;
+            color: white;
+            padding: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 15px; /* Increased space between name and delete button */
+        }
+        .location-card button.delete:hover {
+            background-color: #c62828;
+        }
+        .location-card button.delete i {
+            margin: 0;
+        }
+        .location-card .details {
+            font-size: 16px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+<!-- Navigation Bar -->
+<div class="navbar">
+    <div class="username" id="username" th:text="${'Welcome, ' + login}">Welcome, user</div>
+    <div class="button-group">
+        <button class="home" onclick="goHome()"><i class="fas fa-home"></i></button>
+        <button class="logout" onclick="logout()">Logout</button>
+    </div>
+</div>
+<!-- Main Content -->
+<div class="container">
+    <!-- Search Form -->
+    <div class="search-form">
+        <button onclick="searchLocation()">Search</button>
+        <input type="text" id="search" placeholder="Search for a location..." onkeydown="checkEnter(event)">
+    </div>
+
+    <!-- Location Cards -->
+    <div th:if="${weatherDtoList}" th:each="weatherDto : ${weatherDtoList}" id="location-cards">
+        <!-- Example Location Card -->
+        <div th:if="${weatherDto}" class="location-card" th:id="${'card-' + #strings.escapeJavaScript(weatherDto.name)}">
+            <div class="header">
+                <h3 th:text="${weatherDto.name}">City name</h3>
+                <button class="delete" th:attr="onclick=|deleteLocation('${#strings.escapeJavaScript(weatherDto.name)}', '${#strings.escapeJavaScript(weatherDto.state)}', ${weatherDto.coord.lat}, ${weatherDto.coord.lon}, this)|">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+            <div class="details">
+                <p th:text="${'Temperature: ' + weatherDto.main.temp + '°C'}">Temperature</p>
+                <p th:text="${'Description: ' + weatherDto.weather.last.description}">Description</p>
+                <p th:text="${'Humidity: ' + weatherDto.main.humidity + '%'}">Humidity</p>
+                <p th:text="${'Pressure: ' + weatherDto.main.pressure + ' hPa'}">Pressure</p>
+                <p th:text="${'Latitude and Longitude: (' + weatherDto.coord.lat + ', ' + weatherDto.coord.lon + ')'}">
+                    Latitude and longitude</p>
+                <p th:if="${weatherDto.sys.country}" th:text="${'Country: ' + weatherDto.sys.country}">Country</p>
+                <p th:if="${weatherDto.state}" th:text="${'State: ' + weatherDto.state}">State</p>
+            </div>
+        </div>
+    </div>
+    <div th:if="${weatherDtoList == null || weatherDtoList.isEmpty()}">
+        <p>You added no one location yet</p>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    function goHome() {
+        window.location.href = '/home';
+    }
+
+    function logout() {
+        // Define the URL for the logout endpoint
+        const url = '/auth/logout'; // Replace with your actual URL
+
+        // Send POST request for logout
+        fetch(url, {
+            method: 'POST', // Use POST method for logout
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded' // Set the content type for form data
+            },
+            // You can add body if needed, e.g., for passing additional data
+            body: new URLSearchParams({}) // Empty body or add parameters if needed
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.text(); // or response.json() if the response is JSON
+            })
+            .then(result => {
+                console.log('Logout successful:', result);
+                // Redirect to login page or another appropriate action
+                window.location.href = '/'; // Redirect to login page after successful logout
+            })
+            .catch(error => {
+                console.error('Error during logout:', error);
+                // Handle error (e.g., display an error message)
+            });
+    }
+
+    function searchLocation() {
+        const searchValue = document.getElementById('search').value;
+        if (searchValue.trim() !== '') {
+            window.location.href = '/location?name=' + encodeURIComponent(searchValue);
+        }
+    }
+
+    function checkEnter(event) {
+        if (event.key === "Enter") {
+            searchLocation();
+        }
+    }
+
+    function deleteLocation(locationName, state, latitude, longitude, buttonElement) {
+        const url = '/location?name=' + encodeURIComponent(locationName) + '&state=' + encodeURIComponent(state) + '&latitude=' + encodeURIComponent(latitude) + '&longitude=' + encodeURIComponent(longitude);
+
+        fetch(url, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded' // Optional, depends on server configuration
+            }
+        })
+            .then(result => {
+                if (result.status === 200) {
+                    // Find the parent card element and remove it
+                    const cardElement = buttonElement.closest('.location-card');
+                    if (cardElement) {
+                        cardElement.remove();
+                    }
+                    console.log('Location deleted successfully');
+                } else if (result.status === 400 && result.headers.get("Error-Message")) {
+                    const errorMessage = result.headers.get("Error-Message");
+                    showErrorBanner(errorMessage);
+
+                    const cardElement = buttonElement.closest('.location-card');
+                    if (cardElement) {
+                        cardElement.remove();
+                    }
+
+                    throw new Error('Error: ' + errorMessage);
+                } else {
+                    throw new Error('Network response was not ok');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+
+    function showErrorBanner(message) {
+        // Create a banner element
+        var banner = document.createElement('div');
+        banner.style.position = 'fixed';
+        banner.style.top = '0';
+        banner.style.left = '0';
+        banner.style.width = '100%';
+        banner.style.backgroundColor = '#f44336'; // Red background for errors
+        banner.style.color = 'white';
+        banner.style.padding = '15px';
+        banner.style.textAlign = 'center';
+        banner.style.fontSize = '18px';
+        banner.style.zIndex = '1000';
+        banner.innerText = message;
+
+        // Add the banner to the body
+        document.body.appendChild(banner);
+
+        // Automatically remove the banner after 5 seconds
+        setTimeout(function() {
+            banner.remove();
+        }, 5000);
+    }
+</script>
+</body>
+</html>
