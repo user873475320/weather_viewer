@@ -2,9 +2,7 @@ package dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
 @NoArgsConstructor
@@ -16,5 +14,7 @@ public class UserLoginDTO implements UserDTO{
 
     @Size(min = 6, max = 100, message = "Password length must be between 6 and 100 characters")
     @NotBlank(message = "Password can not be empty")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private String password;
 }
