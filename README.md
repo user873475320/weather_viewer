@@ -42,3 +42,4 @@ Weather data is requested from the OpenWeatherMap service (https://openweatherma
 5. Add `API_KEY` to the environment variables of your project with the value of your OpenWeatherMap API key
 6. **_!!! Don't forget to change application context to `/` in tomcat configuration in order to get correct URL mappings_**
 7. Run the project on the Tomcat server
+8. **_!!! You may need to use VPN because OpenWeatherAPI doesn't work in some regions_**
