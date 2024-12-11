@@ -102,6 +102,7 @@
             display: flex;
             align-items: center;
             margin-bottom: 10px;
+            justify-content: space-between;
         }
         .location-card h3 {
             margin: 0;
@@ -134,6 +135,11 @@
             font-size: 16px;
             color: #666;
         }
+        .weather-icon {
+            width: 40px;
+            height: 40px;
+            margin-left: 10px;
+        }
     </style>
 </head>
 <body>
@@ -159,6 +165,13 @@
         <div th:if="${weatherDto}" class="location-card" th:id="${'card-' + #strings.escapeJavaScript(weatherDto.name)}">
             <div class="header">
                 <h3 th:text="${weatherDto.name}">City name</h3>
+
+                <img class="weather-icon"
+                     th:src="${'/img/' + weatherDto.getWeather.getLast.getIcon + '.png'}"
+                     alt="Weather icon"
+                     th:alt="${weatherDto.weather.last.description}"
+                     style="width: 40px; height: 40px; margin-left: 10px;"/>
+
                 <button class="delete" th:attr="onclick=|deleteLocation('${#strings.escapeJavaScript(weatherDto.name)}', '${#strings.escapeJavaScript(weatherDto.state)}', ${weatherDto.coord.lat}, ${weatherDto.coord.lon}, this)|">
                     <i class="fas fa-trash"></i>
                 </button>

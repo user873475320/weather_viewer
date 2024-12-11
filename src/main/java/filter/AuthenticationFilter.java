@@ -24,6 +24,8 @@ public class AuthenticationFilter implements Filter {
 
     private final List<String> unauthorizedUsersPaths = List.of("/index", "/auth/login", "/auth/registration", "");
     private final List<String> authorizedUsersPaths = List.of("/home", "/auth/logout", "/location");
+    private final List<String> resourcesPaths = List.of("/img", "/js", "/css");
+
 
     private ExceptionHandler exceptionHandler;
     private final SessionService sessionService = new SessionService();
@@ -42,6 +44,7 @@ public class AuthenticationFilter implements Filter {
 
         try {
             String path = req.getServletPath();
+            System.out.println(path);
             HttpSession httpSession = req.getSession(false);
 
             // We can find out about existence of valid session from httpSession or client cookies
@@ -92,7 +95,7 @@ public class AuthenticationFilter implements Filter {
 
         if (isOnlyForUnauthorizedUsers) {
             resp.sendRedirect("/home");
-        } else if (isOnlyForAuthorizedUsers) {
+        } else if (isOnlyForAuthorizedUsers || resourcesPaths.stream().anyMatch(path::startsWith)) {
             chain.doFilter(req, resp);
         } else {
             throw new InvalidUserRequestException("Page not found", HttpServletResponse.SC_NOT_FOUND);

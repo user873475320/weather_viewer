@@ -143,6 +143,11 @@
             font-size: 16px;
             color: #666;
         }
+        .weather-icon {
+            width: 40px;
+            height: 40px;
+            margin-left: 10px;
+        }
     </style>
 </head>
 <body>
@@ -168,6 +173,13 @@
         <div th:if="${weatherDto}" class="location-card">
             <div class="header">
                 <h3 th:text="${weatherDto.name}">City name</h3>
+
+                <img class="weather-icon"
+                     th:src="${'/img/' + weatherDto.getWeather.getLast.getIcon + '.png'}"
+                     alt="Weather icon"
+                     th:alt="${weatherDto.weather.last.description}"
+                     style="width: 40px; height: 40px; margin-left: 10px;"/>
+
                 <button class="add" id="button-weather"
                         th:attr="onclick=|toggleLocation('${#strings.escapeJavaScript(weatherDto.name)}', '${#strings.escapeJavaScript(weatherDto.state)}' , ${weatherDto.coord.lat}, ${weatherDto.coord.lon}, this)|">
                     <i class="fas fa-plus"></i>
