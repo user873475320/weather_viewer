@@ -18,21 +18,21 @@
             background-color: #333;
             color: white;
             padding: 10px 20px;
-            overflow: hidden; /* Ensure content that overflows is hidden */
+            overflow: hidden;
         }
         .navbar .username {
             font-size: 18px;
-            max-width: 200px; /* Adjust the maximum width as needed */
-            white-space: nowrap; /* Prevent the text from wrapping */
-            overflow: hidden; /* Hide overflowed text */
-            text-overflow: ellipsis; /* Show "..." for overflowed text */
+            max-width: 200px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .navbar .button-group {
             display: flex;
             align-items: center;
         }
         .navbar .home {
-            background-color: #4CAF50; /* Green background */
+            background-color: #4CAF50;
             border: none;
             color: white;
             padding: 10px;
@@ -47,7 +47,7 @@
             height: 40px;
         }
         .navbar .home:hover {
-            background-color: #45a049; /* Darker green on hover */
+            background-color: #45a049;
         }
         .navbar .logout {
             background-color: #f44336;
@@ -108,7 +108,7 @@
             margin: 0;
             font-size: 20px;
             font-weight: bold;
-            flex-grow: 1; /* Allow header to take remaining space */
+            flex-grow: 1;
         }
         .location-card button.delete {
             background-color: #f44336;
@@ -123,7 +123,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-left: 15px; /* Increased space between name and delete button */
+            margin-left: 15px;
         }
         .location-card button.delete:hover {
             background-color: #c62828;
@@ -143,6 +143,7 @@
     </style>
 </head>
 <body>
+
 <!-- Navigation Bar -->
 <div class="navbar">
     <div class="username" id="username" th:text="${'Welcome, ' + login}">Welcome, user</div>
@@ -151,6 +152,7 @@
         <button class="logout" onclick="logout()">Logout</button>
     </div>
 </div>
+
 <!-- Main Content -->
 <div class="container">
     <!-- Search Form -->
@@ -199,32 +201,28 @@
     }
 
     function logout() {
-        // Define the URL for the logout endpoint
-        const url = '/auth/logout'; // Replace with your actual URL
+        const url = '/auth/logout';
 
-        // Send POST request for logout
         fetch(url, {
-            method: 'POST', // Use POST method for logout
+            method: 'POST',
             headers: {
-                'Content-Type': 'application/x-www-form-urlencoded' // Set the content type for form data
+                'Content-Type': 'application/x-www-form-urlencoded'
             },
-            // You can add body if needed, e.g., for passing additional data
-            body: new URLSearchParams({}) // Empty body or add parameters if needed
+
+            body: new URLSearchParams({})
         })
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
-                return response.text(); // or response.json() if the response is JSON
+                return response.text();
             })
             .then(result => {
                 console.log('Logout successful:', result);
-                // Redirect to login page or another appropriate action
-                window.location.href = '/'; // Redirect to login page after successful logout
+                window.location.href = '/';
             })
             .catch(error => {
                 console.error('Error during logout:', error);
-                // Handle error (e.g., display an error message)
             });
     }
 
@@ -247,12 +245,12 @@
         fetch(url, {
             method: 'DELETE',
             headers: {
-                'Content-Type': 'application/x-www-form-urlencoded' // Optional, depends on server configuration
+                'Content-Type': 'application/x-www-form-urlencoded'
             }
         })
             .then(result => {
                 if (result.status === 200) {
-                    // Find the parent card element and remove it
+
                     const cardElement = buttonElement.closest('.location-card');
                     if (cardElement) {
                         cardElement.remove();
@@ -278,13 +276,12 @@
     }
 
     function showErrorBanner(message) {
-        // Create a banner element
         var banner = document.createElement('div');
         banner.style.position = 'fixed';
         banner.style.top = '0';
         banner.style.left = '0';
         banner.style.width = '100%';
-        banner.style.backgroundColor = '#f44336'; // Red background for errors
+        banner.style.backgroundColor = '#f44336';
         banner.style.color = 'white';
         banner.style.padding = '15px';
         banner.style.textAlign = 'center';
@@ -292,10 +289,8 @@
         banner.style.zIndex = '1000';
         banner.innerText = message;
 
-        // Add the banner to the body
         document.body.appendChild(banner);
 
-        // Automatically remove the banner after 5 seconds
         setTimeout(function() {
             banner.remove();
         }, 5000);
