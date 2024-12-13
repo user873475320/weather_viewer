@@ -1,55 +1,72 @@
 package dao;
 
+import dao.mapper.SessionRowMapper;
+import entity.Session;
 import exception.server.DatabaseInteractionException;
-import org.hibernate.Hibernate;
-import org.hibernate.Session;
-import org.hibernate.query.Query;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
-public class SessionDAO extends DAO<entity.Session> {
+public class SessionDAO {
 
-    public Optional<entity.Session> findSessionById(UUID id) {
-        try (Session hibernateSession = sessionFactory.openSession()) {
-            hibernateSession.beginTransaction();
+    private final JdbcTemplate jdbcTemplate;
 
-            Optional<entity.Session> session = Optional.ofNullable(hibernateSession.get(entity.Session.class, id));
-
-            hibernateSession.getTransaction().commit();
-
-            return session;
-        } catch (Exception e) {
-            throw new DatabaseInteractionException(e);
-        }
+    public SessionDAO() {
+        this.jdbcTemplate = new JdbcTemplate(getDataSource());
     }
 
-    public Optional<entity.Session> findSessionWithLoadedUserById(UUID id) {
-        try (Session hibernateSession = sessionFactory.openSession()) {
-            hibernateSession.beginTransaction();
+    private DriverManagerDataSource getDataSource() {
+        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        dataSource.setDriverClassName("org.postgresql.Driver");
+        dataSource.setUrl("jdbc:postgresql://localhost:5432/weatherViewerDB");
+        dataSource.setUsername("postgres");
+        dataSource.setPassword("postgres");
+        return dataSource;
+    }
 
-            Optional<entity.Session> session = Optional.ofNullable(hibernateSession.get(entity.Session.class, id));
-            session.ifPresent(value -> Hibernate.initialize(value.getUser()));
+    public Optional<Session> findSessionWithLoadedUserById(UUID id) {
+        try {
+            String sql = "SELECT id, user_id, expires_at FROM sessions WHERE id = ?";
+            Session session = jdbcTemplate.queryForObject(sql, new SessionRowMapper(), id);
 
-            hibernateSession.getTransaction().commit();
+            if (session != null) {
+                String userSql = "SELECT id, login, password FROM users WHERE id = ?";
+                session.setUser(jdbcTemplate.queryForObject(userSql, new dao.mapper.UserRowMapper(), session.getUser().getId()));
+            }
 
-            return session;
+            return Optional.ofNullable(session);
         } catch (Exception e) {
-            throw new DatabaseInteractionException(e);
+            return Optional.empty();
         }
     }
 
     public void deleteExpiredSessions() {
-        executeInTransaction(hibernateSession -> {
-            Query<?> query = hibernateSession.createQuery("delete from Session s where s.expiresAt < :now");
-            query.setParameter("now", LocalDateTime.now());
-            query.executeUpdate();
-        });
+        try {
+            String sql = "DELETE FROM sessions WHERE expires_at < ?";
+            jdbcTemplate.update(sql, LocalDateTime.now());
+        } catch (Exception e) {
+            throw new DatabaseInteractionException(e);
+        }
     }
 
     public void delete(UUID id) {
-        executeInTransaction(hibernateSession ->
-                findSessionById(id).ifPresent(hibernateSession::delete));
+        try {
+            String sql = "DELETE FROM sessions WHERE id = ?";
+            jdbcTemplate.update(sql, id);
+        } catch (Exception e) {
+            throw new DatabaseInteractionException(e);
+        }
+    }
+
+    public void save(Session session) {
+        try {
+            String sql = "INSERT INTO sessions (id, user_id, expires_at) VALUES (?, ?, ?)";
+            jdbcTemplate.update(sql, session.getId(), session.getUser().getId(), session.getExpiresAt());
+        } catch (Exception e) {
+            throw new DatabaseInteractionException(e);
+        }
     }
 }

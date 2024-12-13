@@ -1,25 +1,47 @@
 package dao;
 
+import dao.mapper.UserRowMapper;
 import entity.User;
 import exception.server.DatabaseInteractionException;
-import org.hibernate.Session;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import java.util.Optional;
 
-public class UserDAO extends DAO<User> {
+public class UserDAO {
+
+    private final JdbcTemplate jdbcTemplate;
+
+    public UserDAO() {
+        this.jdbcTemplate = new JdbcTemplate(getDataSource());
+    }
+
+    public DriverManagerDataSource getDataSource() {
+        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        dataSource.setDriverClassName("org.postgresql.Driver");
+        dataSource.setUrl("jdbc:postgresql://localhost:5432/weatherViewerDB");
+        dataSource.setUsername("postgres");
+        dataSource.setPassword("postgres");
+        return dataSource;
+    }
 
     public Optional<User> findUserByLogin(String login) {
-        try (Session hibernateSession = sessionFactory.getCurrentSession()) {
-            hibernateSession.beginTransaction();
+        try {
+            String sql = "SELECT id, login, password FROM users WHERE login = ?";
+            User user = jdbcTemplate.queryForObject(sql, new UserRowMapper(), login);
+            return Optional.ofNullable(user);
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        } catch (Exception e) {
+            throw new DatabaseInteractionException(e);
+        }
+    }
 
-            Optional<User> user = hibernateSession
-                    .createQuery("from User where login = :login", User.class)
-                    .setParameter("login", login)
-                    .uniqueResultOptional();
-
-            hibernateSession.getTransaction().commit();
-
-            return user;
+    public void save(User user) {
+        try {
+            String sql = "INSERT INTO users (login, password) VALUES (?, ?)";
+            jdbcTemplate.update(sql, user.getLogin(), user.getPassword());
         } catch (Exception e) {
             throw new DatabaseInteractionException(e);
         }
