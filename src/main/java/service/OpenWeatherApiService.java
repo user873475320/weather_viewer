@@ -92,6 +92,7 @@ public class OpenWeatherApiService {
         HttpRequest httpRequest = getHttpRequest(requestURL);
 
         HttpResponse<String> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+
         statusCodeHandler(response.statusCode());
 
         return objectMapper.readValue(response.body(), new TypeReference<>() {});

@@ -24,6 +24,7 @@ public class AuthenticationFilter implements Filter {
 
     private final List<String> unauthorizedUsersPaths = List.of("/index", "/auth/login", "/auth/registration", "");
     private final List<String> authorizedUsersPaths = List.of("/home", "/auth/logout", "/location");
+    private final List<String> resourcesPaths = List.of("/img", "/js", "/css");
 
     private ExceptionHandler exceptionHandler;
     private final SessionService sessionService = new SessionService();
@@ -89,10 +90,11 @@ public class AuthenticationFilter implements Filter {
                                                      FilterChain chain) throws IOException, ServletException {
         boolean isOnlyForUnauthorizedUsers = unauthorizedUsersPaths.contains(path);
         boolean isOnlyForAuthorizedUsers = authorizedUsersPaths.contains(path);
+        boolean isResourcePath = resourcesPaths.stream().anyMatch(path::startsWith);
 
         if (isOnlyForUnauthorizedUsers) {
             resp.sendRedirect("/home");
-        } else if (isOnlyForAuthorizedUsers) {
+        } else if (isOnlyForAuthorizedUsers || isResourcePath) {
             chain.doFilter(req, resp);
         } else {
             throw new InvalidUserRequestException("Page not found", HttpServletResponse.SC_NOT_FOUND);
