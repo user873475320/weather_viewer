@@ -3,30 +3,17 @@ package dao.impl;
 import dao.LocationRepository;
 import entity.Location;
 import exception.server.DatabaseInteractionException;
+import lombok.RequiredArgsConstructor;
 import mapper.LocationRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import java.util.List;
 
+@RequiredArgsConstructor
 public class LocationRepositoryImpl implements LocationRepository {
 
     private final JdbcTemplate jdbcTemplate;
     private final LocationRowMapper locationRowMapper;
-
-    public LocationRepositoryImpl() {
-        this.jdbcTemplate = new JdbcTemplate(getDataSource());
-        locationRowMapper = new LocationRowMapper();
-    }
-
-    private DriverManagerDataSource getDataSource() {
-        DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName("org.postgresql.Driver");
-        dataSource.setUrl("jdbc:postgresql://localhost:5432/weatherViewerDB");
-        dataSource.setUsername("postgres");
-        dataSource.setPassword("postgres");
-        return dataSource;
-    }
 
     @Override
     public void save(Location location) {

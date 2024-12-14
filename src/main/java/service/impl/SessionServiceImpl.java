@@ -1,10 +1,10 @@
 package service.impl;
 
 import dao.SessionRepository;
-import dao.impl.SessionRepositoryImpl;
 import entity.Session;
 import entity.User;
 import jakarta.servlet.http.Cookie;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import service.SessionService;
 import util.CookieUtils;
@@ -15,9 +15,10 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
+@RequiredArgsConstructor
 public class SessionServiceImpl implements SessionService {
 
-    private final SessionRepository sessionRepository = new SessionRepositoryImpl();
+    private final SessionRepository sessionRepository;
 
     @Override
     public Session getConfiguredSession(Long userId) {

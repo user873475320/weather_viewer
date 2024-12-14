@@ -1,18 +1,19 @@
 package service.impl;
 
 import dao.UserRepository;
-import dao.impl.UserRepositoryImpl;
 import dto.UserDTO;
 import entity.User;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import service.UserService;
 
 import java.util.Optional;
 
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private final UserRepository userRepository = new UserRepositoryImpl();
+    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Override

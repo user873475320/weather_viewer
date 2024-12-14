@@ -1,12 +1,13 @@
 package validation.validators;
 
 import dto.LocationDTO;
+import lombok.RequiredArgsConstructor;
 import service.LocationService;
-import service.impl.LocationServiceImpl;
 
+@RequiredArgsConstructor
 public class LocationExistenceValidator {
 
-    private final LocationService locationService = new LocationServiceImpl();
+    private final LocationService locationService;
 
     public boolean isExist(LocationDTO locationDTO, Long userId) {
         return locationService.findUserLocationDTOs(userId)

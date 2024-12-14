@@ -1,6 +1,5 @@
 package filter;
 
-import configuration.ThymeleafConfig;
 import entity.Session;
 import exception.client.InvalidUserRequestException;
 import jakarta.servlet.*;
@@ -9,9 +8,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import org.thymeleaf.TemplateEngine;
 import service.SessionService;
-import service.impl.SessionServiceImpl;
 import util.CookieUtils;
 import util.ExceptionHandler;
 import util.HttpSessionUtils;
@@ -28,13 +25,12 @@ public class AuthenticationFilter implements Filter {
     private final List<String> resourcesPaths = List.of("/img", "/js", "/css");
 
     private ExceptionHandler exceptionHandler;
-    private final SessionService sessionService = new SessionServiceImpl();
+    private SessionService sessionService;
 
     @Override
     public void init(FilterConfig filterConfig) {
-        ServletContext servletContext = filterConfig.getServletContext();
-        TemplateEngine templateEngine = new ThymeleafConfig().templateEngine(servletContext);
-        exceptionHandler = new ExceptionHandler(servletContext, templateEngine);
+        exceptionHandler = (ExceptionHandler) filterConfig.getServletContext().getAttribute("exceptionHandler");
+        sessionService = (SessionService) filterConfig.getServletContext().getAttribute("sessionService");
     }
 
     @Override

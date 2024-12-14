@@ -3,30 +3,18 @@ package dao.impl;
 import dao.SessionRepository;
 import entity.Session;
 import exception.server.DatabaseInteractionException;
+import lombok.RequiredArgsConstructor;
 import mapper.SessionRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
+@RequiredArgsConstructor
 public class SessionRepositoryImpl implements SessionRepository {
 
     private final JdbcTemplate jdbcTemplate;
-
-    public SessionRepositoryImpl() {
-        this.jdbcTemplate = new JdbcTemplate(getDataSource());
-    }
-
-    private DriverManagerDataSource getDataSource() {
-        DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName("org.postgresql.Driver");
-        dataSource.setUrl("jdbc:postgresql://localhost:5432/weatherViewerDB");
-        dataSource.setUsername("postgres");
-        dataSource.setPassword("postgres");
-        return dataSource;
-    }
 
     @Override
     public Optional<Session> findSessionWithLoadedUserById(UUID id) {

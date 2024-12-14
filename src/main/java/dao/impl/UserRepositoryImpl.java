@@ -3,29 +3,17 @@ package dao.impl;
 import dao.UserRepository;
 import entity.User;
 import exception.server.DatabaseInteractionException;
+import lombok.RequiredArgsConstructor;
 import mapper.UserRowMapper;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import java.util.Optional;
 
+@RequiredArgsConstructor
 public class UserRepositoryImpl implements UserRepository {
 
     private final JdbcTemplate jdbcTemplate;
-
-    public UserRepositoryImpl() {
-        this.jdbcTemplate = new JdbcTemplate(getDataSource());
-    }
-
-    public DriverManagerDataSource getDataSource() {
-        DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName("org.postgresql.Driver");
-        dataSource.setUrl("jdbc:postgresql://localhost:5432/weatherViewerDB");
-        dataSource.setUsername("postgres");
-        dataSource.setPassword("postgres");
-        return dataSource;
-    }
 
     @Override
     public Optional<User> findUserByLogin(String login) {

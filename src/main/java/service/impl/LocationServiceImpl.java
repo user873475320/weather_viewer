@@ -1,19 +1,20 @@
 package service.impl;
 
 import dao.LocationRepository;
-import dao.impl.LocationRepositoryImpl;
 import dto.LocationDTO;
 import entity.Location;
 import entity.User;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import service.LocationService;
 
 import java.util.List;
 
 @Slf4j
+@RequiredArgsConstructor
 public class LocationServiceImpl implements LocationService {
 
-    private final LocationRepository locationRepository = new LocationRepositoryImpl();
+    private final LocationRepository locationRepository;
 
     @Override
     public List<LocationDTO> findUserLocationDTOs(Long userId) {
