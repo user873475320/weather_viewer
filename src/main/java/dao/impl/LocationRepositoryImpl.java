@@ -1,19 +1,20 @@
-package dao;
+package dao.impl;
 
-import dao.mapper.LocationRowMapper;
+import dao.LocationRepository;
 import entity.Location;
 import exception.server.DatabaseInteractionException;
+import mapper.LocationRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import java.util.List;
 
-public class LocationDAO {
+public class LocationRepositoryImpl implements LocationRepository {
 
     private final JdbcTemplate jdbcTemplate;
     private final LocationRowMapper locationRowMapper;
 
-    public LocationDAO() {
+    public LocationRepositoryImpl() {
         this.jdbcTemplate = new JdbcTemplate(getDataSource());
         locationRowMapper = new LocationRowMapper();
     }
@@ -27,6 +28,7 @@ public class LocationDAO {
         return dataSource;
     }
 
+    @Override
     public void save(Location location) {
         try {
             String sql = "INSERT INTO locations (name, state, user_id, latitude, longitude) VALUES (?, ?, ?, ?, ?)";
@@ -37,6 +39,7 @@ public class LocationDAO {
         }
     }
 
+    @Override
     public List<Location> findLocationsByUserId(Long userId) {
         try {
             String sql = "SELECT id, name, state, user_id, latitude, longitude FROM locations WHERE user_id = ? ORDER BY user_id ASC";
@@ -46,6 +49,7 @@ public class LocationDAO {
         }
     }
 
+    @Override
     public void delete(Location location) {
         try {
             String sql = "DELETE FROM locations WHERE user_id = ? AND latitude = ? AND longitude = ?";

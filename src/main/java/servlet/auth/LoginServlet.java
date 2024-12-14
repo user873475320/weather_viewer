@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.ConstraintViolation;
 import service.UserService;
+import service.impl.UserServiceImpl;
 import servlet.BaseServlet;
 import util.SessionHandler;
 import util.UserUtils;
@@ -17,7 +18,7 @@ import java.util.Set;
 @WebServlet("/auth/login")
 public class LoginServlet extends BaseServlet {
 
-    private final UserService userService = new UserService();
+    private final UserService userService = new UserServiceImpl();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {

@@ -4,6 +4,7 @@ import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
 import jakarta.servlet.annotation.WebListener;
 import service.SessionService;
+import service.impl.SessionServiceImpl;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -11,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 
 @WebListener
 public class SessionCleaner implements ServletContextListener {
-    private final SessionService sessionService = new SessionService();
+    private final SessionService sessionService = new SessionServiceImpl();
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     @Override

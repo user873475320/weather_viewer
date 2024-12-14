@@ -1,8 +1,9 @@
-package dao;
+package dao.impl;
 
-import dao.mapper.SessionRowMapper;
+import dao.SessionRepository;
 import entity.Session;
 import exception.server.DatabaseInteractionException;
+import mapper.SessionRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
@@ -10,11 +11,11 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
-public class SessionDAO {
+public class SessionRepositoryImpl implements SessionRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
-    public SessionDAO() {
+    public SessionRepositoryImpl() {
         this.jdbcTemplate = new JdbcTemplate(getDataSource());
     }
 
@@ -27,6 +28,7 @@ public class SessionDAO {
         return dataSource;
     }
 
+    @Override
     public Optional<Session> findSessionWithLoadedUserById(UUID id) {
         try {
             String sql = "SELECT id, user_id, expires_at FROM sessions WHERE id = ?";
@@ -34,7 +36,7 @@ public class SessionDAO {
 
             if (session != null) {
                 String userSql = "SELECT id, login, password FROM users WHERE id = ?";
-                session.setUser(jdbcTemplate.queryForObject(userSql, new dao.mapper.UserRowMapper(), session.getUser().getId()));
+                session.setUser(jdbcTemplate.queryForObject(userSql, new mapper.UserRowMapper(), session.getUser().getId()));
             }
 
             return Optional.ofNullable(session);
@@ -43,6 +45,7 @@ public class SessionDAO {
         }
     }
 
+    @Override
     public void deleteExpiredSessions() {
         try {
             String sql = "DELETE FROM sessions WHERE expires_at < ?";
@@ -52,6 +55,7 @@ public class SessionDAO {
         }
     }
 
+    @Override
     public void delete(UUID id) {
         try {
             String sql = "DELETE FROM sessions WHERE id = ?";
@@ -61,6 +65,7 @@ public class SessionDAO {
         }
     }
 
+    @Override
     public void save(Session session) {
         try {
             String sql = "INSERT INTO sessions (id, user_id, expires_at) VALUES (?, ?, ?)";

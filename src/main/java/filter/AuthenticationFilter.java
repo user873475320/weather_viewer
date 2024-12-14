@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.thymeleaf.TemplateEngine;
 import service.SessionService;
+import service.impl.SessionServiceImpl;
 import util.CookieUtils;
 import util.ExceptionHandler;
 import util.HttpSessionUtils;
@@ -27,7 +28,7 @@ public class AuthenticationFilter implements Filter {
     private final List<String> resourcesPaths = List.of("/img", "/js", "/css");
 
     private ExceptionHandler exceptionHandler;
-    private final SessionService sessionService = new SessionService();
+    private final SessionService sessionService = new SessionServiceImpl();
 
     @Override
     public void init(FilterConfig filterConfig) {

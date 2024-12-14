@@ -1,32 +1,15 @@
 package service;
 
-import dao.UserDAO;
 import dto.UserDTO;
 import entity.User;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
-public class UserService {
+public interface UserService {
 
-    private final UserDAO userDAO = new UserDAO();
-    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    Optional<User> findUserByLoginAndPassword(String login, String password);
 
-    public Optional<User> findUserByLoginAndPassword(String login, String password) {
-        Optional<User> optionalUser = userDAO.findUserByLogin(login);
-        return optionalUser
-                .filter(user -> passwordEncoder.matches(password, user.getPassword()));
-    }
+    boolean checkCredentials(UserDTO userDTO);
 
-    public boolean checkCredentials(UserDTO userDTO) {
-        return findUserByLoginAndPassword(userDTO.getLogin(), userDTO.getPassword()).isPresent();
-    }
-
-    public void save(UserDTO userDTO) {
-        userDAO.save(User.builder()
-                .login(userDTO.getLogin())
-                .password(passwordEncoder.encode(userDTO.getPassword()))
-                .build());
-    }
+    void save(UserDTO userDTO);
 }

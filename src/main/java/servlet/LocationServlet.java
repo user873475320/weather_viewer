@@ -8,7 +8,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.ConstraintViolation;
 import service.LocationService;
-import service.OpenWeatherApiService;
+import service.WeatherService;
+import service.impl.LocationServiceImpl;
+import service.impl.OpenWeatherApiService;
 import util.HttpSessionUtils;
 import util.LocationUtils;
 import validation.validators.LocationExistenceValidator;
@@ -20,8 +22,8 @@ import java.util.Set;
 public class LocationServlet extends BaseServlet {
 
     private final LocationExistenceValidator locationExistenceValidator = new LocationExistenceValidator();
-    private final LocationService locationService = new LocationService();
-    private final OpenWeatherApiService openWeatherApiService = new OpenWeatherApiService();
+    private final WeatherService weatherService = new OpenWeatherApiService();
+    private final LocationService locationService = new LocationServiceImpl();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
@@ -35,7 +37,7 @@ public class LocationServlet extends BaseServlet {
         }
 
         req.setAttribute("login", session.getUser().getLogin());
-        req.setAttribute("weatherDtoList", openWeatherApiService.getWeatherData(locationDTO.getName()));
+        req.setAttribute("weatherDtoList", weatherService.getWeatherData(locationDTO.getName()));
         processTemplate("search_results", req, resp);
     }
 

@@ -1,19 +1,20 @@
-package dao;
+package dao.impl;
 
-import dao.mapper.UserRowMapper;
+import dao.UserRepository;
 import entity.User;
 import exception.server.DatabaseInteractionException;
+import mapper.UserRowMapper;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import java.util.Optional;
 
-public class UserDAO {
+public class UserRepositoryImpl implements UserRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
-    public UserDAO() {
+    public UserRepositoryImpl() {
         this.jdbcTemplate = new JdbcTemplate(getDataSource());
     }
 
@@ -26,6 +27,7 @@ public class UserDAO {
         return dataSource;
     }
 
+    @Override
     public Optional<User> findUserByLogin(String login) {
         try {
             String sql = "SELECT id, login, password FROM users WHERE login = ?";
@@ -38,6 +40,7 @@ public class UserDAO {
         }
     }
 
+    @Override
     public void save(User user) {
         try {
             String sql = "INSERT INTO users (login, password) VALUES (?, ?)";

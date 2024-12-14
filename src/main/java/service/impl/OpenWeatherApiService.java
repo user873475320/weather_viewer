@@ -1,4 +1,4 @@
-package service;
+package service.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -7,6 +7,7 @@ import dto.LocationDTO;
 import dto.WeatherDTO;
 import exception.server.OpenWeatherApiInteractionException;
 import lombok.extern.slf4j.Slf4j;
+import service.WeatherService;
 
 import java.io.IOException;
 import java.net.URI;
@@ -22,7 +23,7 @@ import java.util.List;
 import java.util.Set;
 
 @Slf4j
-public class OpenWeatherApiService {
+public class OpenWeatherApiService implements WeatherService {
     private final String API_KEY = System.getenv("API_KEY");
     private static final String BASE_OPEN_WEATHER_API_URL = "https://api.openweathermap.org/data/2.5/weather";
     private static final String BASE_GEOCODING_API_URL = "http://api.openweathermap.org/geo/1.0/direct";
@@ -30,6 +31,7 @@ public class OpenWeatherApiService {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final HttpClient httpClient = HttpClient.newHttpClient();
 
+    @Override
     public List<WeatherDTO> getWeatherData(List<LocationDTO> locations) {
         try {
             List<WeatherDTO> weatherDTOs = new ArrayList<>();
@@ -54,6 +56,8 @@ public class OpenWeatherApiService {
             throw new OpenWeatherApiInteractionException(e);
         }
     }
+
+    @Override
     public List<WeatherDTO> getWeatherData(String locationName) {
         try {
             Set<GeocodingApiResponseDTO> locations = getListOfLocationsByName(locationName);
@@ -84,7 +88,7 @@ public class OpenWeatherApiService {
         return objectMapper.readValue(response.body(), new TypeReference<>() {});
     }
 
-    public WeatherDTO getWeatherByLatitudeAndLongitude(double lat, double lon) throws URISyntaxException, IOException, InterruptedException {
+    private WeatherDTO getWeatherByLatitudeAndLongitude(double lat, double lon) throws URISyntaxException, IOException, InterruptedException {
         String encodedLatitude = URLEncoder.encode(Double.toString(lat), StandardCharsets.UTF_8);
         String encodedLongitude = URLEncoder.encode(Double.toString(lon), StandardCharsets.UTF_8);
         String requestURL = BASE_OPEN_WEATHER_API_URL + "?lat=" + encodedLatitude + "&lon=" + encodedLongitude + "&lang=en&units=metric&appid=" + API_KEY;
@@ -98,7 +102,7 @@ public class OpenWeatherApiService {
         return objectMapper.readValue(response.body(), new TypeReference<>() {});
     }
 
-    private static HttpRequest getHttpRequest(String requestURL) throws URISyntaxException {
+    private HttpRequest getHttpRequest(String requestURL) throws URISyntaxException {
         return HttpRequest.newBuilder()
                     .uri(new URI(requestURL))
                     .GET()

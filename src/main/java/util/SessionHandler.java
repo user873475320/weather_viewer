@@ -8,13 +8,15 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import service.SessionService;
 import service.UserService;
+import service.impl.SessionServiceImpl;
+import service.impl.UserServiceImpl;
 
 import java.util.Optional;
 
 @Slf4j
 public class SessionHandler {
-    private static final SessionService sessionService = new SessionService();
-    private static final UserService userService = new UserService();
+    private static final SessionService sessionService = new SessionServiceImpl();
+    private static final UserService userService = new UserServiceImpl();
 
     private SessionHandler() {}
 

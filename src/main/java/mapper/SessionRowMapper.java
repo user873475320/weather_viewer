@@ -1,4 +1,4 @@
-package dao.mapper;
+package mapper;
 
 import entity.Session;
 import entity.User;
