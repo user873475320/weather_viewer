@@ -15,11 +15,14 @@ public class LocationRepositoryImpl implements LocationRepository {
     private final JdbcTemplate jdbcTemplate;
     private final LocationRowMapper locationRowMapper;
 
+    private static final String SQL_SAVE_LOCATION = "INSERT INTO locations (name, state, user_id, latitude, longitude) VALUES (?, ?, ?, ?, ?)";
+    private static final String SQL_FIND_LOCATIONS_BY_USER_ID = "SELECT id, name, state, user_id, latitude, longitude FROM locations WHERE user_id = ? ORDER BY user_id ASC";
+    private static final String SQL_DELETE_LOCATION = "DELETE FROM locations WHERE user_id = ? AND latitude = ? AND longitude = ?";
+
     @Override
     public void save(Location location) {
         try {
-            String sql = "INSERT INTO locations (name, state, user_id, latitude, longitude) VALUES (?, ?, ?, ?, ?)";
-            jdbcTemplate.update(sql, location.getName(), location.getState(), location.getUser().getId(),
+            jdbcTemplate.update(SQL_SAVE_LOCATION, location.getName(), location.getState(), location.getUser().getId(),
                     location.getLatitude(), location.getLongitude());
         } catch (Exception e) {
             throw new DatabaseInteractionException(e);
@@ -29,8 +32,7 @@ public class LocationRepositoryImpl implements LocationRepository {
     @Override
     public List<Location> findLocationsByUserId(Long userId) {
         try {
-            String sql = "SELECT id, name, state, user_id, latitude, longitude FROM locations WHERE user_id = ? ORDER BY user_id ASC";
-            return jdbcTemplate.query(sql, locationRowMapper, userId);
+            return jdbcTemplate.query(SQL_FIND_LOCATIONS_BY_USER_ID, locationRowMapper, userId);
         } catch (Exception e) {
             throw new DatabaseInteractionException(e);
         }
@@ -39,8 +41,7 @@ public class LocationRepositoryImpl implements LocationRepository {
     @Override
     public void delete(Location location) {
         try {
-            String sql = "DELETE FROM locations WHERE user_id = ? AND latitude = ? AND longitude = ?";
-            jdbcTemplate.update(sql, location.getUser().getId(), location.getLatitude(), location.getLongitude());
+            jdbcTemplate.update(SQL_DELETE_LOCATION, location.getUser().getId(), location.getLatitude(), location.getLongitude());
         } catch (Exception e) {
             throw new DatabaseInteractionException(e);
         }

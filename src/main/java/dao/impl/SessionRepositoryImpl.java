@@ -16,15 +16,19 @@ public class SessionRepositoryImpl implements SessionRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
+    private static final String SELECT_SESSION_BY_ID_SQL = "SELECT id, user_id, expires_at FROM sessions WHERE id = ?";
+    private static final String SELECT_USER_BY_ID_SQL = "SELECT id, login, password FROM users WHERE id = ?";
+    private static final String DELETE_EXPIRED_SESSIONS_SQL = "DELETE FROM sessions WHERE expires_at < ?";
+    private static final String DELETE_SESSION_BY_ID_SQL = "DELETE FROM sessions WHERE id = ?";
+    private static final String INSERT_SESSION_SQL = "INSERT INTO sessions (id, user_id, expires_at) VALUES (?, ?, ?)";
+
     @Override
     public Optional<Session> findSessionWithLoadedUserById(UUID id) {
         try {
-            String sql = "SELECT id, user_id, expires_at FROM sessions WHERE id = ?";
-            Session session = jdbcTemplate.queryForObject(sql, new SessionRowMapper(), id);
+            Session session = jdbcTemplate.queryForObject(SELECT_SESSION_BY_ID_SQL, new SessionRowMapper(), id);
 
             if (session != null) {
-                String userSql = "SELECT id, login, password FROM users WHERE id = ?";
-                session.setUser(jdbcTemplate.queryForObject(userSql, new mapper.UserRowMapper(), session.getUser().getId()));
+                session.setUser(jdbcTemplate.queryForObject(SELECT_USER_BY_ID_SQL, new mapper.UserRowMapper(), session.getUser().getId()));
             }
 
             return Optional.ofNullable(session);
@@ -36,8 +40,7 @@ public class SessionRepositoryImpl implements SessionRepository {
     @Override
     public void deleteExpiredSessions() {
         try {
-            String sql = "DELETE FROM sessions WHERE expires_at < ?";
-            jdbcTemplate.update(sql, LocalDateTime.now());
+            jdbcTemplate.update(DELETE_EXPIRED_SESSIONS_SQL, LocalDateTime.now());
         } catch (Exception e) {
             throw new DatabaseInteractionException(e);
         }
@@ -46,8 +49,7 @@ public class SessionRepositoryImpl implements SessionRepository {
     @Override
     public void delete(UUID id) {
         try {
-            String sql = "DELETE FROM sessions WHERE id = ?";
-            jdbcTemplate.update(sql, id);
+            jdbcTemplate.update(DELETE_SESSION_BY_ID_SQL, id);
         } catch (Exception e) {
             throw new DatabaseInteractionException(e);
         }
@@ -56,8 +58,7 @@ public class SessionRepositoryImpl implements SessionRepository {
     @Override
     public void save(Session session) {
         try {
-            String sql = "INSERT INTO sessions (id, user_id, expires_at) VALUES (?, ?, ?)";
-            jdbcTemplate.update(sql, session.getId(), session.getUser().getId(), session.getExpiresAt());
+            jdbcTemplate.update(INSERT_SESSION_SQL, session.getId(), session.getUser().getId(), session.getExpiresAt());
         } catch (Exception e) {
             throw new DatabaseInteractionException(e);
         }

@@ -15,11 +15,13 @@ public class UserRepositoryImpl implements UserRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
+    private static final String SELECT_USER_BY_LOGIN_SQL = "SELECT id, login, password FROM users WHERE login = ?";
+    private static final String INSERT_USER_SQL = "INSERT INTO users (login, password) VALUES (?, ?)";
+
     @Override
     public Optional<User> findUserByLogin(String login) {
         try {
-            String sql = "SELECT id, login, password FROM users WHERE login = ?";
-            User user = jdbcTemplate.queryForObject(sql, new UserRowMapper(), login);
+            User user = jdbcTemplate.queryForObject(SELECT_USER_BY_LOGIN_SQL, new UserRowMapper(), login);
             return Optional.ofNullable(user);
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
@@ -31,8 +33,7 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public void save(User user) {
         try {
-            String sql = "INSERT INTO users (login, password) VALUES (?, ?)";
-            jdbcTemplate.update(sql, user.getLogin(), user.getPassword());
+            jdbcTemplate.update(INSERT_USER_SQL, user.getLogin(), user.getPassword());
         } catch (Exception e) {
             throw new DatabaseInteractionException(e);
         }
